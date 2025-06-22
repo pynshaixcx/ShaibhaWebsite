@@ -1,0 +1,664 @@
+<?php
+$slug = $_GET['slug'] ?? '';
+if (!$slug) {
+    header('Location: index.php');
+    exit;
+}
+
+require_once '../includes/functions.php';
+
+$product = getProductBySlug($slug);
+if (!$product) {
+    header('Location: index.php');
+    exit;
+}
+
+$page_title = $product['name'];
+$page_description = $product['short_description'] ?: substr(strip_tags($product['description']), 0, 160);
+
+include_once '../includes/header.php';
+
+$product_images = getProductImages($product['id']);
+$current_price = $product['sale_price'] ?: $product['price'];
+$discount_percent = $product['sale_price'] ? calculateDiscountPercentage($product['price'], $product['sale_price']) : 0;
+
+// Get related products
+$related_products = getProducts(['category_id' => $product['category_id'], 'limit' => 4]);
+$related_products = array_filter($related_products, function($p) use ($product) {
+    return $p['id'] !== $product['id'];
+});
+?>
+
+<main class="main-content">
+    <!-- Product Details -->
+    <section class="product-details">
+        <div class="container">
+            <div class="product-layout">
+                <!-- Product Images -->
+                <div class="product-images">
+                    <div class="main-image">
+                        <img id="main-product-image" src="https://images.pexels.com/photos/1536619/pexels-photo-1536619.jpeg" alt="<?php echo htmlspecialchars($product['name']); ?>">
+                        <?php if ($discount_percent > 0): ?>
+                            <span class="discount-badge"><?php echo $discount_percent; ?>% OFF</span>
+                        <?php endif; ?>
+                    </div>
+                    <?php if (count($product_images) > 1): ?>
+                        <div class="image-thumbnails">
+                            <?php foreach ($product_images as $index => $image): ?>
+                                <img src="https://images.pexels.com/photos/1536619/pexels-photo-1536619.jpeg" 
+                                     alt="<?php echo htmlspecialchars($image['alt_text'] ?: $product['name']); ?>"
+                                     class="thumbnail <?php echo $index === 0 ? 'active' : ''; ?>"
+                                     onclick="changeMainImage(this.src)">
+                            <?php endforeach; ?>
+                        </div>
+                    <?php endif; ?>
+                </div>
+
+                <!-- Product Info -->
+                <div class="product-info">
+                    <div class="product-header">
+                        <h1 class="product-title"><?php echo htmlspecialchars($product['name']); ?></h1>
+                        <p class="product-brand"><?php echo htmlspecialchars($product['brand']); ?></p>
+                        <div class="product-rating">
+                            <div class="stars">
+                                <span>★★★★★</span>
+                            </div>
+                            <span class="rating-text">Excellent Condition</span>
+                        </div>
+                    </div>
+
+                    <div class="product-price">
+                        <span class="current-price"><?php echo formatPrice($current_price); ?></span>
+                        <?php if ($product['sale_price']): ?>
+                            <span class="original-price"><?php echo formatPrice($product['price']); ?></span>
+                            <span class="savings">You save <?php echo formatPrice($product['price'] - $product['sale_price']); ?></span>
+                        <?php endif; ?>
+                    </div>
+
+                    <div class="product-details-info">
+                        <div class="detail-item">
+                            <span class="detail-label">Condition:</span>
+                            <span class="detail-value"><?php echo ucfirst(str_replace('_', ' ', $product['condition_rating'])); ?></span>
+                        </div>
+                        <?php if ($product['size']): ?>
+                            <div class="detail-item">
+                                <span class="detail-label">Size:</span>
+                                <span class="detail-value"><?php echo htmlspecialchars($product['size']); ?></span>
+                            </div>
+                        <?php endif; ?>
+                        <?php if ($product['color']): ?>
+                            <div class="detail-item">
+                                <span class="detail-label">Color:</span>
+                                <span class="detail-value"><?php echo htmlspecialchars($product['color']); ?></span>
+                            </div>
+                        <?php endif; ?>
+                        <?php if ($product['material']): ?>
+                            <div class="detail-item">
+                                <span class="detail-label">Material:</span>
+                                <span class="detail-value"><?php echo htmlspecialchars($product['material']); ?></span>
+                            </div>
+                        <?php endif; ?>
+                        <div class="detail-item">
+                            <span class="detail-label">SKU:</span>
+                            <span class="detail-value"><?php echo htmlspecialchars($product['sku']); ?></span>
+                        </div>
+                    </div>
+
+                    <div class="product-actions">
+                        <div class="quantity-selector">
+                            <label for="quantity">Quantity:</label>
+                            <div class="quantity-controls">
+                                <button type="button" onclick="decreaseQuantity()">-</button>
+                                <input type="number" id="quantity" value="1" min="1" max="<?php echo $product['stock_quantity']; ?>">
+                                <button type="button" onclick="increaseQuantity()">+</button>
+                            </div>
+                        </div>
+                        
+                        <button class="btn btn-primary add-to-cart-btn" onclick="addToCart(<?php echo $product['id']; ?>)">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+                                <line x1="3" y1="6" x2="21" y2="6"></line>
+                                <path d="M16 10a4 4 0 0 1-8 0"></path>
+                            </svg>
+                            Add to Cart
+                        </button>
+                        
+                        <button class="btn btn-secondary wishlist-btn">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                            </svg>
+                            Add to Wishlist
+                        </button>
+                    </div>
+
+                    <div class="shipping-info">
+                        <div class="shipping-item">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M16 3h5v5"></path>
+                                <path d="M8 3H3v5"></path>
+                                <path d="M12 22v-8.3a4 4 0 0 0-4-4H3"></path>
+                                <path d="M21 9.5V8a2 2 0 0 0-2-2h-7"></path>
+                            </svg>
+                            <span>Free shipping on orders over ₹1,999</span>
+                        </div>
+                        <div class="shipping-item">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                                <polyline points="9,22 9,12 15,12 15,22"></polyline>
+                            </svg>
+                            <span>Cash on Delivery available</span>
+                        </div>
+                        <div class="shipping-item">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M9 12l2 2 4-4"></path>
+                                <circle cx="12" cy="12" r="10"></circle>
+                            </svg>
+                            <span>7-day return policy</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Product Description -->
+    <section class="product-description">
+        <div class="container">
+            <div class="description-tabs">
+                <div class="tab-buttons">
+                    <button class="tab-btn active" onclick="showTab('description')">Description</button>
+                    <button class="tab-btn" onclick="showTab('care')">Care Instructions</button>
+                    <button class="tab-btn" onclick="showTab('shipping')">Shipping & Returns</button>
+                </div>
+                
+                <div class="tab-content">
+                    <div id="description" class="tab-pane active">
+                        <div class="description-content">
+                            <?php echo nl2br(htmlspecialchars($product['description'])); ?>
+                        </div>
+                    </div>
+                    
+                    <div id="care" class="tab-pane">
+                        <div class="care-content">
+                            <?php if ($product['care_instructions']): ?>
+                                <?php echo nl2br(htmlspecialchars($product['care_instructions'])); ?>
+                            <?php else: ?>
+                                <p>General care instructions for pre-loved clothing:</p>
+                                <ul>
+                                    <li>Follow the care label instructions</li>
+                                    <li>Wash in cold water when possible</li>
+                                    <li>Air dry to preserve fabric quality</li>
+                                    <li>Store in a cool, dry place</li>
+                                </ul>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                    
+                    <div id="shipping" class="tab-pane">
+                        <div class="shipping-content">
+                            <h4>Shipping Information</h4>
+                            <ul>
+                                <li>Free shipping on orders over ₹1,999</li>
+                                <li>Standard shipping: 3-5 business days</li>
+                                <li>Cash on Delivery available</li>
+                                <li>Secure packaging for all items</li>
+                            </ul>
+                            
+                            <h4>Return Policy</h4>
+                            <ul>
+                                <li>7-day return policy</li>
+                                <li>Items must be in original condition</li>
+                                <li>Return shipping costs apply</li>
+                                <li>Refunds processed within 5-7 business days</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Related Products -->
+    <?php if (!empty($related_products)): ?>
+        <section class="related-products">
+            <div class="container">
+                <h2 class="section-title">
+                    <span class="title-line">You Might Also Like</span>
+                </h2>
+                <div class="products-grid">
+                    <?php foreach (array_slice($related_products, 0, 4) as $related): ?>
+                        <?php
+                        $related_image = getPrimaryProductImage($related['id']);
+                        $related_price = $related['sale_price'] ?: $related['price'];
+                        ?>
+                        <div class="product-card">
+                            <div class="product-image">
+                                <img src="https://images.pexels.com/photos/996329/pexels-photo-996329.jpeg" alt="<?php echo htmlspecialchars($related['name']); ?>">
+                                <div class="product-overlay">
+                                    <a href="product.php?slug=<?php echo $related['slug']; ?>" class="quick-view-btn">View Product</a>
+                                </div>
+                            </div>
+                            <div class="product-info">
+                                <h3 class="product-title">
+                                    <a href="product.php?slug=<?php echo $related['slug']; ?>">
+                                        <?php echo htmlspecialchars($related['name']); ?>
+                                    </a>
+                                </h3>
+                                <p class="product-brand"><?php echo htmlspecialchars($related['brand']); ?></p>
+                                <div class="product-price">
+                                    <span class="current-price"><?php echo formatPrice($related_price); ?></span>
+                                    <?php if ($related['sale_price']): ?>
+                                        <span class="original-price"><?php echo formatPrice($related['price']); ?></span>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+        </section>
+    <?php endif; ?>
+</main>
+
+<style>
+/* Product Page Styles */
+.product-details {
+    padding: var(--spacing-3xl) 0;
+}
+
+.product-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--spacing-3xl);
+    align-items: start;
+}
+
+.product-images {
+    position: sticky;
+    top: 100px;
+}
+
+.main-image {
+    position: relative;
+    margin-bottom: var(--spacing-lg);
+    border-radius: var(--border-radius-xl);
+    overflow: hidden;
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-backdrop);
+    border: 1px solid var(--glass-border);
+}
+
+.main-image img {
+    width: 100%;
+    height: 500px;
+    object-fit: cover;
+    transition: transform var(--transition-slow);
+}
+
+.main-image:hover img {
+    transform: scale(1.05);
+}
+
+.discount-badge {
+    position: absolute;
+    top: var(--spacing-md);
+    right: var(--spacing-md);
+    background: var(--color-black);
+    color: var(--color-white);
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-radius: var(--border-radius-md);
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.image-thumbnails {
+    display: flex;
+    gap: var(--spacing-sm);
+    overflow-x: auto;
+}
+
+.thumbnail {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: var(--border-radius-md);
+    cursor: pointer;
+    opacity: 0.7;
+    transition: opacity var(--transition-fast);
+    border: 2px solid transparent;
+}
+
+.thumbnail.active,
+.thumbnail:hover {
+    opacity: 1;
+    border-color: var(--color-black);
+}
+
+.product-info {
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-backdrop);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--border-radius-xl);
+    padding: var(--spacing-2xl);
+}
+
+.product-header {
+    margin-bottom: var(--spacing-xl);
+}
+
+.product-title {
+    font-size: 2rem;
+    margin-bottom: var(--spacing-sm);
+    color: var(--color-black);
+}
+
+.product-brand {
+    color: var(--color-gray-600);
+    font-size: 1.1rem;
+    margin-bottom: var(--spacing-sm);
+}
+
+.product-rating {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.stars {
+    color: #ffd700;
+    font-size: 1.2rem;
+}
+
+.rating-text {
+    color: var(--color-gray-600);
+    font-size: 0.9rem;
+}
+
+.product-price {
+    margin-bottom: var(--spacing-xl);
+    padding: var(--spacing-lg);
+    background: rgba(0,0,0,0.05);
+    border-radius: var(--border-radius-md);
+}
+
+.current-price {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--color-black);
+    margin-right: var(--spacing-md);
+}
+
+.original-price {
+    font-size: 1.2rem;
+    color: var(--color-gray-500);
+    text-decoration: line-through;
+    margin-right: var(--spacing-md);
+}
+
+.savings {
+    color: #10b981;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.product-details-info {
+    margin-bottom: var(--spacing-xl);
+}
+
+.detail-item {
+    display: flex;
+    justify-content: space-between;
+    padding: var(--spacing-sm) 0;
+    border-bottom: 1px solid var(--color-gray-200);
+}
+
+.detail-label {
+    font-weight: 600;
+    color: var(--color-gray-700);
+}
+
+.detail-value {
+    color: var(--color-black);
+}
+
+.product-actions {
+    margin-bottom: var(--spacing-xl);
+}
+
+.quantity-selector {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+}
+
+.quantity-controls {
+    display: flex;
+    align-items: center;
+    border: 1px solid var(--color-gray-300);
+    border-radius: var(--border-radius-md);
+    overflow: hidden;
+}
+
+.quantity-controls button {
+    background: var(--color-gray-100);
+    border: none;
+    padding: var(--spacing-sm) var(--spacing-md);
+    cursor: pointer;
+    transition: background-color var(--transition-fast);
+}
+
+.quantity-controls button:hover {
+    background: var(--color-gray-200);
+}
+
+.quantity-controls input {
+    border: none;
+    padding: var(--spacing-sm);
+    width: 60px;
+    text-align: center;
+    background: var(--color-white);
+}
+
+.add-to-cart-btn,
+.wishlist-btn {
+    width: 100%;
+    margin-bottom: var(--spacing-sm);
+    justify-content: center;
+}
+
+.shipping-info {
+    border-top: 1px solid var(--color-gray-200);
+    padding-top: var(--spacing-lg);
+}
+
+.shipping-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-sm);
+    color: var(--color-gray-600);
+    font-size: 0.9rem;
+}
+
+.product-description {
+    padding: var(--spacing-3xl) 0;
+    background: linear-gradient(135deg, var(--color-gray-100) 0%, var(--color-white) 100%);
+}
+
+.description-tabs {
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-backdrop);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--border-radius-xl);
+    overflow: hidden;
+}
+
+.tab-buttons {
+    display: flex;
+    border-bottom: 1px solid var(--color-gray-200);
+}
+
+.tab-btn {
+    flex: 1;
+    padding: var(--spacing-lg);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    color: var(--color-gray-600);
+    transition: all var(--transition-fast);
+}
+
+.tab-btn.active,
+.tab-btn:hover {
+    background: var(--color-black);
+    color: var(--color-white);
+}
+
+.tab-content {
+    padding: var(--spacing-xl);
+}
+
+.tab-pane {
+    display: none;
+}
+
+.tab-pane.active {
+    display: block;
+}
+
+.description-content,
+.care-content,
+.shipping-content {
+    line-height: 1.8;
+    color: var(--color-gray-700);
+}
+
+.shipping-content h4 {
+    margin: var(--spacing-lg) 0 var(--spacing-md);
+    color: var(--color-black);
+}
+
+.shipping-content ul {
+    margin-bottom: var(--spacing-lg);
+}
+
+.shipping-content li {
+    margin-bottom: var(--spacing-xs);
+}
+
+.related-products {
+    padding: var(--spacing-3xl) 0;
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+    .product-layout {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-xl);
+    }
+    
+    .product-images {
+        position: static;
+    }
+    
+    .main-image img {
+        height: 400px;
+    }
+}
+
+@media (max-width: 768px) {
+    .product-title {
+        font-size: 1.5rem;
+    }
+    
+    .current-price {
+        font-size: 1.5rem;
+    }
+    
+    .tab-buttons {
+        flex-direction: column;
+    }
+    
+    .quantity-selector {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+</style>
+
+<script>
+function changeMainImage(src) {
+    document.getElementById('main-product-image').src = src;
+    
+    // Update active thumbnail
+    document.querySelectorAll('.thumbnail').forEach(thumb => {
+        thumb.classList.remove('active');
+    });
+    event.target.classList.add('active');
+}
+
+function increaseQuantity() {
+    const input = document.getElementById('quantity');
+    const max = parseInt(input.getAttribute('max'));
+    const current = parseInt(input.value);
+    if (current < max) {
+        input.value = current + 1;
+    }
+}
+
+function decreaseQuantity() {
+    const input = document.getElementById('quantity');
+    const current = parseInt(input.value);
+    if (current > 1) {
+        input.value = current - 1;
+    }
+}
+
+function showTab(tabName) {
+    // Hide all tab panes
+    document.querySelectorAll('.tab-pane').forEach(pane => {
+        pane.classList.remove('active');
+    });
+    
+    // Remove active class from all buttons
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    // Show selected tab
+    document.getElementById(tabName).classList.add('active');
+    event.target.classList.add('active');
+}
+
+function addToCart(productId) {
+    const quantity = document.getElementById('quantity').value;
+    
+    fetch('../cart/ajax/add-to-cart.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            product_id: productId,
+            quantity: parseInt(quantity)
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            updateCartCount(data.cart_count);
+            showNotification('Product added to cart!', 'success');
+        } else {
+            showNotification('Error adding product to cart', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('Error adding product to cart', 'error');
+    });
+}
+</script>
+
+<?php include_once '../includes/footer.php'; ?>
