@@ -33,6 +33,11 @@
     <link rel="icon" type="image/svg+xml" href="/images/favicon.svg">
 </head>
 <body>
+    <?php
+    // Get all categories for the dropdown menu
+    require_once __DIR__ . '/functions.php';
+    $nav_categories = getCategories();
+    ?>
     <!-- Navigation -->
     <nav class="navbar">
         <div class="nav-container">
@@ -50,17 +55,17 @@
                     <li class="nav-item dropdown">
                         <a href="/shop/" class="nav-link dropdown-toggle">Shop</a>
                         <div class="dropdown-menu">
-                            <a href="/shop/category.php?cat=dresses" class="dropdown-link">Dresses</a>
-                            <a href="/shop/category.php?cat=tops" class="dropdown-link">Tops & Blouses</a>
-                            <a href="/shop/category.php?cat=outerwear" class="dropdown-link">Outerwear</a>
-                            <a href="/shop/category.php?cat=accessories" class="dropdown-link">Accessories</a>
+                            <a href="/shop/" class="dropdown-link">All Products</a>
+                            <?php foreach ($nav_categories as $category): ?>
+                            <a href="/shop/category.php?cat=<?php echo $category['slug']; ?>" class="dropdown-link"><?php echo htmlspecialchars($category['name']); ?></a>
+                            <?php endforeach; ?>
                         </div>
                     </li>
                     <li class="nav-item">
                         <a href="/about.php" class="nav-link">About</a>
                     </li>
                     <li class="nav-item dropdown">
-                        <a href="#" class="nav-link dropdown-toggle">Services</a>
+                        <a href="/services/" class="nav-link dropdown-toggle">Services</a>
                         <div class="dropdown-menu">
                             <a href="/services/size-guide.php" class="dropdown-link">Size Guide</a>
                             <a href="/services/care-instructions.php" class="dropdown-link">Care Instructions</a>
@@ -160,8 +165,8 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Mobile dropdown toggles
-    const dropdownToggles = document.querySelectorAll('.nav-item.dropdown > .nav-link');
-
+    const dropdownToggles = document.querySelectorAll('.dropdown-toggle');
+    
     dropdownToggles.forEach(toggle => {
         toggle.addEventListener('click', function(e) {
             if (window.innerWidth < 992) {
@@ -169,31 +174,17 @@ document.addEventListener('DOMContentLoaded', function() {
                 const parent = this.parentElement;
                 const dropdown = parent.querySelector('.dropdown-menu');
                 
-                // Close all other dropdowns except the current one
-                document.querySelectorAll('.nav-item.dropdown .dropdown-menu.active').forEach(menu => {
+                // Close all other dropdowns
+                document.querySelectorAll('.dropdown-menu.active').forEach(menu => {
                     if (menu !== dropdown) {
                         menu.classList.remove('active');
-                        menu.closest('.nav-item.dropdown').classList.remove('active');
                     }
                 });
                 
-                // Toggle this dropdown and its parent .nav-item
+                // Toggle this dropdown
                 dropdown.classList.toggle('active');
-                parent.classList.toggle('active');
             }
         });
-    });
-
-    // Close mobile menu and dropdowns when resizing to desktop
-    window.addEventListener('resize', function() {
-        if (window.innerWidth >= 992) {
-            navMenu.classList.remove('active');
-            mobileMenuBtn.classList.remove('active');
-            document.querySelectorAll('.nav-item.dropdown .dropdown-menu.active').forEach(menu => {
-                menu.classList.remove('active');
-                menu.closest('.nav-item.dropdown').classList.remove('active');
-            });
-        }
     });
     
     // Search toggle

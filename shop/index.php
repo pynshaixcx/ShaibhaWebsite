@@ -111,28 +111,6 @@ $categories = getCategories();
     <section class="shop-content">
         <div class="container">
             <div class="shop-layout">
-                <!-- Filters Sidebar -->
-                <aside class="shop-sidebar">
-                    <div class="filter-section">
-                        <h3>Categories</h3>
-                        <ul class="filter-list">
-                            <li>
-                                <a href="index.php" class="filter-link <?php echo !$category_slug ? 'active' : ''; ?>">
-                                    All Products
-                                </a>
-                            </li>
-                            <?php foreach ($categories as $cat): ?>
-                                <li>
-                                    <a href="index.php?category=<?php echo $cat['slug']; ?>" 
-                                       class="filter-link <?php echo $category_slug === $cat['slug'] ? 'active' : ''; ?>">
-                                        <?php echo htmlspecialchars($cat['name']); ?>
-                                    </a>
-                                </li>
-                            <?php endforeach; ?>
-                        </ul>
-                    </div>
-                </aside>
-
                 <!-- Products Grid -->
                 <div class="shop-main">
                     <!-- Sort Options -->
