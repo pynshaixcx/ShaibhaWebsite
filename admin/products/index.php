@@ -90,10 +90,10 @@ $categories = fetchAll("SELECT id, name FROM categories WHERE status = 'active' 
         }
         
         .product-thumbnail {
-            width: 80px;
-            height: 80px;
+            width: 60px;
+            height: 60px;
             object-fit: cover;
-            border-radius: var(--border-radius-md);
+            border-radius: 4px;
         }
         
         .product-name {
@@ -155,7 +155,7 @@ $categories = fetchAll("SELECT id, name FROM categories WHERE status = 'active' 
         
         .status-active {
             background: #dcfce7;
-            color: #166534;
+            color: green;
         }
         
         .status-inactive {
@@ -170,44 +170,42 @@ $categories = fetchAll("SELECT id, name FROM categories WHERE status = 'active' 
         
         .table-actions {
             display: flex;
-            gap: 5px;
+            gap: 10px;
         }
         
         .action-btn {
-            width: 28px;
-            height: 28px;
+            padding: 5px;
             border-radius: 4px;
-            display: flex;
+            display: inline-flex;
             align-items: center;
             justify-content: center;
-            transition: all 0.15s ease;
         }
         
         .edit-btn {
-            background: #d1fae5;
-            color: #065f46;
+            background-color: #e9ecef;
+            color: #495057;
         }
         
         .edit-btn:hover {
-            background: #a7f3d0;
+            background-color: #a7f3d0;
         }
         
         .view-btn {
-            background: #dbeafe;
+            background-color: #dbeafe;
             color: #1e40af;
         }
         
         .view-btn:hover {
-            background: #bfdbfe;
+            background-color: #bfdbfe;
         }
         
         .delete-btn {
-            background: #fee2e2;
-            color: #dc2626;
+            background-color: #fff5f5;
+            color: #e53e3e;
         }
         
         .delete-btn:hover {
-            background: #fecaca;
+            background-color: #fecaca;
         }
         
         .filters-section {
@@ -270,51 +268,50 @@ $categories = fetchAll("SELECT id, name FROM categories WHERE status = 'active' 
             color: var(--color-black);
         }
         
+        .table-container {
+            overflow-x: auto;
+        }
+        
         .data-table {
             width: 100%;
             border-collapse: collapse;
         }
         
-        .data-table th {
+        .data-table th, .data-table td {
+            padding: 12px 15px;
             text-align: left;
-            padding: var(--spacing-sm);
-            color: var(--color-gray-700);
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .data-table th {
+            background-color: #f8f9fa;
             font-weight: 600;
-            border-bottom: 2px solid var(--color-gray-200);
-            cursor: pointer;
         }
         
-        .data-table td {
-            padding: var(--spacing-sm);
-            border-bottom: 1px solid var(--color-gray-200);
-            color: var(--color-gray-800);
-        }
-        
-        .data-table tr:hover td {
-            background: var(--color-gray-100);
+        .data-table tr:hover {
+            background-color: #f1f1f1;
         }
         
         .pagination {
             display: flex;
-            justify-content: center;
-            gap: var(--spacing-sm);
-            margin-top: var(--spacing-xl);
+            gap: 5px;
+            margin-top: 20px;
         }
         
-        .pagination-link {
-            padding: var(--spacing-sm) var(--spacing-md);
-            border: 1px solid var(--color-gray-300);
-            border-radius: var(--border-radius-md);
-            color: var(--color-gray-700);
-            text-decoration: none;
-            transition: all var(--transition-fast);
+        .pagination a, .pagination span {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
         }
         
-        .pagination-link:hover,
-        .pagination-link.active {
-            background: var(--color-black);
-            color: var(--color-white);
-            border-color: var(--color-black);
+        .pagination a:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .pagination .active {
+            background-color: #000;
+            color: white;
+            border-color: #000;
         }
     </style>
 </head>

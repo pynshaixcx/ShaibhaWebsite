@@ -14,6 +14,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = sanitizeInput($_POST['username'] ?? '');
     $password = $_POST['password'] ?? '';
     
+    // Debug: output the received credentials
+    error_log("Login attempt: username=$username, password=$password");
+
     if (empty($username) || empty($password)) {
         $error = 'Please enter both username and password';
     } else {
