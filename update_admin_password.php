@@ -1,20 +1,19 @@
 <?php
-require_once __DIR__ . '/config/config.php';
+require_once __DIR__ . '/config/database.php';
 require_once __DIR__ . '/includes/functions.php';
 
-$email = 'admin@shaibha.com';
-$newPassword = 'ShaiBha@2025';
+// Update admin password
+$sql = "UPDATE admin_users SET 
+        password = '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 
+        login_attempts = 0, 
+        locked_until = NULL 
+        WHERE username = 'admin'";
 
-// Hash the new password
-$hashedPassword = hashPassword($newPassword);
+$result = executeQuery($sql);
 
-// Update the database
-$sql = "UPDATE admin_users SET password = ? WHERE email = ?";
-$stmt = executeQuery($sql, [$hashedPassword, $email]);
-
-if ($stmt) {
-    echo "Password updated successfully for $email.\n";
+if ($result) {
+    echo "Admin password reset successfully. You can now login with username 'admin' and password 'admin123'.";
 } else {
-    echo "Failed to update password.\n";
+    echo "Failed to reset admin password.";
 }
 ?>

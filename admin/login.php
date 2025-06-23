@@ -19,7 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Check admin credentials
         $admin = fetchOne("SELECT * FROM admin_users WHERE username = ? AND status = 'active'", [$username]);
         
-        if ($admin && verifyPassword($password, $admin['password'])) {
+        if ($admin && password_verify($password, $admin['password'])) {
             // Login successful
             $_SESSION['admin_id'] = $admin['id'];
             $_SESSION['admin_name'] = $admin['full_name'];

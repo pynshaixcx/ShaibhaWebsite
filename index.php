@@ -32,7 +32,7 @@ include_once 'includes/header.php';
         </div>
         <div class="hero-image">
             <div class="image-container">
-                <img src="https://images.pexels.com/photos/996329/pexels-photo-996329.jpeg" alt="Curated Fashion Collection" loading="lazy">
+                <img src="images/products/product_1.jpg" alt="Curated Fashion Collection" loading="lazy">
             </div>
         </div>
     </section>
@@ -47,7 +47,7 @@ include_once 'includes/header.php';
                 <div class="category-card" data-category="dresses">
                     <div class="card-inner">
                         <div class="card-image">
-                            <img src="https://images.pexels.com/photos/1536619/pexels-photo-1536619.jpeg" alt="Dresses Collection">
+                            <img src="images/products/product_1.jpg" alt="Dresses Collection">
                         </div>
                         <div class="card-content">
                             <h3>Dresses</h3>
@@ -59,7 +59,7 @@ include_once 'includes/header.php';
                 <div class="category-card" data-category="tops">
                     <div class="card-inner">
                         <div class="card-image">
-                            <img src="https://images.pexels.com/photos/1536619/pexels-photo-1536619.jpeg" alt="Tops Collection">
+                            <img src="images/products/product_2.jpg" alt="Tops Collection">
                         </div>
                         <div class="card-content">
                             <h3>Tops & Blouses</h3>
@@ -71,7 +71,7 @@ include_once 'includes/header.php';
                 <div class="category-card" data-category="outerwear">
                     <div class="card-inner">
                         <div class="card-image">
-                            <img src="https://images.pexels.com/photos/1043474/pexels-photo-1043474.jpeg" alt="Outerwear Collection">
+                            <img src="images/products/product_3.jpg" alt="Outerwear Collection">
                         </div>
                         <div class="card-content">
                             <h3>Outerwear</h3>
@@ -83,7 +83,7 @@ include_once 'includes/header.php';
                 <div class="category-card" data-category="accessories">
                     <div class="card-inner">
                         <div class="card-image">
-                            <img src="https://images.pexels.com/photos/1536619/pexels-photo-1536619.jpeg" alt="Accessories Collection">
+                            <img src="images/products/product_1.jpg" alt="Accessories Collection">
                         </div>
                         <div class="card-content">
                             <h3>Accessories</h3>
@@ -106,13 +106,13 @@ include_once 'includes/header.php';
                 <!-- Sample products -->
                 <div class="product-card">
                     <div class="product-image">
-                        <img src="https://images.pexels.com/photos/1536619/pexels-photo-1536619.jpeg" alt="Vintage Silk Dress">
+                        <img src="images/products/product_1.jpg" alt="Vintage Silk Dress">
                         <div class="product-overlay">
-                            <button class="quick-view-btn">Quick View</button>
+                            <a href="shop/product.php?slug=vintage-silk-dress" class="quick-view-btn">View Details</a>
                         </div>
                     </div>
                     <div class="product-info">
-                        <h3 class="product-title">Vintage Silk Dress</h3>
+                        <h3 class="product-title"><a href="shop/product.php?slug=vintage-silk-dress">Vintage Silk Dress</a></h3>
                         <p class="product-condition">Excellent Condition</p>
                         <div class="product-price">
                             <span class="current-price">₹2,499</span>
@@ -123,13 +123,13 @@ include_once 'includes/header.php';
                 
                 <div class="product-card">
                     <div class="product-image">
-                        <img src="https://images.pexels.com/photos/1043474/pexels-photo-1043474.jpeg" alt="Designer Blazer">
+                        <img src="images/products/product_2.jpg" alt="Designer Blazer">
                         <div class="product-overlay">
-                            <button class="quick-view-btn">Quick View</button>
+                            <a href="shop/product.php?slug=designer-blazer" class="quick-view-btn">View Details</a>
                         </div>
                     </div>
                     <div class="product-info">
-                        <h3 class="product-title">Designer Blazer</h3>
+                        <h3 class="product-title"><a href="shop/product.php?slug=designer-blazer">Designer Blazer</a></h3>
                         <p class="product-condition">Very Good Condition</p>
                         <div class="product-price">
                             <span class="current-price">₹3,999</span>
@@ -140,13 +140,13 @@ include_once 'includes/header.php';
                 
                 <div class="product-card">
                     <div class="product-image">
-                        <img src="https://images.pexels.com/photos/996329/pexels-photo-996329.jpeg" alt="Leather Handbag">
+                        <img src="images/products/product_3.jpg" alt="Leather Handbag">
                         <div class="product-overlay">
-                            <button class="quick-view-btn">Quick View</button>
+                            <a href="shop/product.php?slug=leather-handbag" class="quick-view-btn">View Details</a>
                         </div>
                     </div>
                     <div class="product-info">
-                        <h3 class="product-title">Leather Handbag</h3>
+                        <h3 class="product-title"><a href="shop/product.php?slug=leather-handbag">Leather Handbag</a></h3>
                         <p class="product-condition">Good Condition</p>
                         <div class="product-price">
                             <span class="current-price">₹1,899</span>
@@ -177,7 +177,7 @@ include_once 'includes/header.php';
                 </div>
                 <div class="content-image">
                     <div class="image-container">
-                        <img src="https://images.pexels.com/photos/996329/pexels-photo-996329.jpeg" alt="Sustainable Fashion">
+                        <img src="images/products/product_3.jpg" alt="Sustainable Fashion">
                     </div>
                 </div>
             </div>

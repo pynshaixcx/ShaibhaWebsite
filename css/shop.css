@@ -707,11 +707,33 @@
     }
     
     .search-input-group {
-        flex-direction: column;
+        flex-direction: row;
     }
     
     .search-btn {
         justify-content: center;
+    }
+}
+
+/* Search Bar Mobile Fix */
+@media (max-width: 768px) {
+    .search-form-section {
+        margin-bottom: var(--spacing-xl);
+    }
+    
+    .search-input-group {
+        display: flex;
+        flex-direction: row;
+        width: 100%;
+    }
+    
+    .search-input-group input {
+        flex: 1;
+        min-width: 0;
+    }
+    
+    .search-btn {
+        white-space: nowrap;
     }
 }
 

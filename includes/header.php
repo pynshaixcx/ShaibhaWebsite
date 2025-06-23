@@ -161,6 +161,7 @@ document.addEventListener('DOMContentLoaded', function() {
         mobileMenuBtn.addEventListener('click', function() {
             navMenu.classList.toggle('active');
             mobileMenuBtn.classList.toggle('active');
+            document.body.classList.toggle('menu-open');
         });
     }
     
@@ -191,6 +192,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const searchBtn = document.getElementById('search-btn');
     const searchOverlay = document.getElementById('search-overlay');
     const searchClose = document.getElementById('search-close');
+    const searchInput = document.querySelector('.search-input');
     
     if (searchBtn && searchOverlay && searchClose) {
         searchBtn.addEventListener('click', function() {

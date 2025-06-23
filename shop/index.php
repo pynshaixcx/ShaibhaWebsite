@@ -131,19 +131,14 @@ $categories = getCategories();
                         <div class="products-grid">
                             <?php foreach ($products as $product): ?>
                                 <?php
-                                // Use Pexels images instead of trying to load from uploads
-                                $image_urls = [
-                                    "https://images.pexels.com/photos/1536619/pexels-photo-1536619.jpeg",
-                                    "https://images.pexels.com/photos/996329/pexels-photo-996329.jpeg",
-                                    "https://images.pexels.com/photos/1043474/pexels-photo-1043474.jpeg"
-                                ];
-                                $image_url = $image_urls[array_rand($image_urls)];
+                                // Use local images
+                                $image_path = "../images/products/product_" . rand(1, 3) . ".jpg";
                                 $current_price = $product['sale_price'] ?: $product['price'];
                                 $discount_percent = $product['sale_price'] ? calculateDiscountPercentage($product['price'], $product['sale_price']) : 0;
                                 ?>
                                 <div class="product-card" data-product-id="<?php echo $product['id']; ?>">
                                     <div class="product-image">
-                                        <img src="<?php echo $image_url; ?>" alt="<?php echo htmlspecialchars($product['name']); ?>" loading="lazy">
+                                        <img src="<?php echo $image_path; ?>" alt="<?php echo htmlspecialchars($product['name']); ?>" loading="lazy">
                                         <?php if ($discount_percent > 0): ?>
                                             <span class="discount-badge"><?php echo $discount_percent; ?>% OFF</span>
                                         <?php endif; ?>
@@ -208,33 +203,6 @@ $categories = getCategories();
         </div>
     </section>
 </main>
-
-<style>
-/* Additional styles to fix issues */
-.products-count {
-    font-family: var(--font-display);
-    font-size: 1.2rem;
-    font-weight: 500;
-}
-
-.product-overlay .quick-view-btn {
-    background: var(--color-white);
-    color: var(--color-black);
-    border: none;
-    padding: var(--spacing-sm) var(--spacing-lg);
-    border-radius: var(--border-radius-md);
-    font-weight: 600;
-    cursor: pointer;
-    transition: all var(--transition-fast);
-    text-decoration: none;
-    display: inline-block;
-}
-
-.product-overlay .quick-view-btn:hover {
-    background: var(--color-black);
-    color: var(--color-white);
-}
-</style>
 
 <script>
 function updateSort(value) {
