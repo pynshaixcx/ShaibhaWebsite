@@ -208,45 +208,6 @@ include_once '../includes/header.php';
     </section>
 </main>
 
-<script>
-function updateSort(value) {
-    const url = new URL(window.location.href);
-    url.searchParams.set('sort', value);
-    window.location.href = url.toString();
-}
 
-function addToCart(productId) {
-    fetch('../cart/ajax/add-to-cart.php', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            product_id: productId,
-            quantity: 1
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            // Update cart count
-            const cartCount = document.getElementById('cart-count');
-            if (cartCount) {
-                cartCount.textContent = data.cart_count;
-                cartCount.style.display = 'flex';
-            }
-            
-            // Show success message
-            alert('Product added to cart!');
-        } else {
-            alert(data.message || 'Error adding product to cart');
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('Error adding product to cart');
-    });
-}
-</script>
 
 <?php include_once '../includes/footer.php'; ?>

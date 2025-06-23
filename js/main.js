@@ -16,6 +16,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // Product interactions
     initializeProductInteractions();
     
+    // Shop page controls
+    initializeShopControls();
+    
     // Cart functionality
     initializeCart();
     
@@ -101,41 +104,60 @@ function initializeSearch() {
     }
 }
 
-// Mobile menu toggle
-document.addEventListener('DOMContentLoaded', function() {
+// Mobile menu functionality
+function initializeMobileMenu() {
     const mobileMenuBtn = document.getElementById('mobile-menu-btn');
     const navMenu = document.getElementById('nav-menu');
+    const body = document.body;
 
     if (mobileMenuBtn && navMenu) {
+        // Main menu toggle
         mobileMenuBtn.addEventListener('click', function(e) {
             e.stopPropagation();
-            navMenu.classList.toggle('active');
-            this.classList.toggle('active');
-            document.body.classList.toggle('menu-open');
+            const isActive = navMenu.classList.toggle('active');
+            mobileMenuBtn.classList.toggle('active');
+            body.classList.toggle('menu-open', isActive);
         });
 
         // Close menu when clicking outside
         document.addEventListener('click', function(e) {
-            if (!navMenu.contains(e.target) && !mobileMenuBtn.contains(e.target)) {
+            if (navMenu.classList.contains('active') && !navMenu.contains(e.target) && !mobileMenuBtn.contains(e.target)) {
                 navMenu.classList.remove('active');
                 mobileMenuBtn.classList.remove('active');
-                document.body.classList.remove('menu-open');
+                body.classList.remove('menu-open');
+            }
+        });
+
+        // Handle dropdowns within the mobile menu
+        const dropdownToggles = navMenu.querySelectorAll('.dropdown-toggle');
+        dropdownToggles.forEach(toggle => {
+            toggle.addEventListener('click', function(e) {
+                // Only activate for mobile
+                if (window.innerWidth < 992) {
+                    e.preventDefault();
+                    const dropdownMenu = this.nextElementSibling;
+                    
+                    if (dropdownMenu && dropdownMenu.classList.contains('dropdown-menu')) {
+                        // Toggle the active class on the dropdown menu
+                        dropdownMenu.classList.toggle('active');
+                        // Toggle active class on the parent nav-item for styling
+                        this.parentElement.classList.toggle('active');
+                    }
+                }
+            });
+        });
+
+        // Close menu when a link is clicked
+        navMenu.addEventListener('click', function(e) {
+            // Check if the clicked element is a link, but not a dropdown toggle
+            if (e.target.tagName === 'A' && !e.target.classList.contains('dropdown-toggle')) {
+                navMenu.classList.remove('active');
+                mobileMenuBtn.classList.remove('active');
+                body.classList.remove('menu-open');
             }
         });
     }
-
-    // Close mobile menu when clicking a nav link
-    const navLinks = document.querySelectorAll('.nav-link');
-    navLinks.forEach(link => {
-        link.addEventListener('click', function() {
-            if (window.innerWidth < 992) {
-                navMenu.classList.remove('active');
-                mobileMenuBtn.classList.remove('active');
-                document.body.classList.remove('menu-open');
-            }
-        });
-    });
-});
+}
 
 // Typography animations
 function initializeAnimations() {
@@ -174,122 +196,99 @@ function initializeAnimations() {
 
 // Product interactions
 function initializeProductInteractions() {
-    // Category card interactions
-    const categoryCards = document.querySelectorAll('.category-card');
-    categoryCards.forEach(card => {
-        card.addEventListener('click', () => {
-            const category = card.getAttribute('data-category');
+    // Event delegation for category cards
+    document.body.addEventListener('click', function(e) {
+        const categoryCard = e.target.closest('.category-card');
+        if (categoryCard) {
+            const category = categoryCard.dataset.category;
             if (category) {
                 window.location.href = `shop/category.php?cat=${category}`;
             }
-        });
-        
-        // Add hover effect enhancement for desktop
-        if (window.matchMedia('(hover: hover)').matches) {
-            card.addEventListener('mouseenter', () => {
-                card.style.transform = 'translateY(-8px) scale(1.02)';
-            });
-            
-            card.addEventListener('mouseleave', () => {
-                card.style.transform = 'translateY(0) scale(1)';
-            });
         }
     });
-    
-    // Product card interactions
-    const productCards = document.querySelectorAll('.product-card');
-    productCards.forEach(card => {
-        const quickViewBtn = card.querySelector('.quick-view-btn');
-        
-        if (quickViewBtn) {
-            quickViewBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                // Add quick view functionality here
-                console.log('Quick view clicked');
-            });
-        }
-        
-        // Card click to product page
-        card.addEventListener('click', () => {
-            // Navigate to product page
-            console.log('Navigate to product page');
-        });
-        
-        // Add hover effect for desktop
-        if (window.matchMedia('(hover: hover)').matches) {
-            card.addEventListener('mouseenter', () => {
-                const img = card.querySelector('.product-image img');
-                if (img) {
-                    img.style.filter = 'grayscale(0%)';
-                    img.style.transform = 'scale(1.1)';
-                }
-            });
-            
-            card.addEventListener('mouseleave', () => {
-                const img = card.querySelector('.product-image img');
-                if (img) {
-                    img.style.filter = '';
-                    img.style.transform = '';
-                }
-            });
+
+    // Event delegation for add to cart buttons
+    document.body.addEventListener('click', function(e) {
+        if (e.target.matches('.add-to-cart-btn')) {
+            e.preventDefault();
+            const productCard = e.target.closest('.product-card');
+            const productId = productCard ? productCard.dataset.productId : e.target.dataset.productId;
+            if (productId) {
+                addToCart(productId);
+            }
         }
     });
 }
 
+// Shop page controls (sorting, etc.)
+function initializeShopControls() {
+    const sortSelect = document.getElementById('sort');
+    if (sortSelect) {
+        sortSelect.addEventListener('change', (e) => {
+            const url = new URL(window.location.href);
+            url.searchParams.set('sort', e.target.value);
+            url.searchParams.set('page', '1'); // Reset to first page on sort
+            window.location.href = url.toString();
+        });
+    }
+}
+
 // Cart functionality
 function initializeCart() {
-    let cartCount = 0;
-    const cartCountElement = document.getElementById('cart-count');
-    
-    // Update cart count display
-    function updateCartCount(count) {
-        cartCount = count;
-        if (cartCountElement) {
-            cartCountElement.textContent = cartCount;
-            cartCountElement.style.display = cartCount > 0 ? 'flex' : 'none';
-        }
-    }
-    
-    // Add to cart functionality
-    function addToCart(productId, quantity = 1) {
-        // AJAX call to add product to cart
-        fetch('ajax/add-to-cart.php', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                product_id: productId,
-                quantity: quantity
-            })
-        })
+    // Fetch initial cart count on page load
+    fetch(getAjaxUrl('get-cart-count.php'))
         .then(response => response.json())
         .then(data => {
-            if (data.success) {
+            if (data && typeof data.cart_count !== 'undefined') {
                 updateCartCount(data.cart_count);
-                showNotification('Product added to cart!', 'success');
-            } else {
-                showNotification('Error adding product to cart', 'error');
             }
         })
         .catch(error => {
-            console.error('Error:', error);
-            showNotification('Error adding product to cart', 'error');
+            // This can fail silently if user has no cart session yet
+            // console.error('Error loading initial cart count:', error);
         });
+}
+
+// --- Global Utility Functions ---
+
+function getAjaxUrl(endpoint) {
+    const isShopPage = window.location.pathname.includes('/shop/');
+    const prefix = isShopPage ? '../' : '';
+    return `${prefix}cart/ajax/${endpoint}`;
+}
+
+function updateCartCount(count) {
+    const cartCountElement = document.getElementById('cart-count');
+    if (cartCountElement) {
+        cartCountElement.textContent = count;
+        cartCountElement.style.display = count > 0 ? 'flex' : 'none';
     }
-    
-    // Initialize cart count on page load
-    fetch('/cart/ajax/get-cart-count.php')
-        .then(response => response.json())
-        .then(data => {
-            updateCartCount(data.count || 0);
+}
+
+function addToCart(productId, quantity = 1) {
+    fetch(getAjaxUrl('add-to-cart.php'), {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            product_id: productId,
+            quantity: quantity
         })
-        .catch(error => {
-            console.error('Error loading cart count:', error);
-        });
-    
-    // Make addToCart globally available
-    window.addToCart = addToCart;
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            updateCartCount(data.cart_count);
+            showNotification('Product added to cart!', 'success');
+        } else {
+            showNotification(data.message || 'Error adding product to cart', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('Error adding product to cart', 'error');
+    });
 }
 
 // Smooth scrolling

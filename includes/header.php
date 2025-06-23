@@ -153,17 +153,7 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Mobile menu toggle
-    const mobileMenuBtn = document.getElementById('mobile-menu-btn');
-    const navMenu = document.getElementById('nav-menu');
-    
-    if (mobileMenuBtn && navMenu) {
-        mobileMenuBtn.addEventListener('click', function() {
-            navMenu.classList.toggle('active');
-            mobileMenuBtn.classList.toggle('active');
-            document.body.classList.toggle('menu-open');
-        });
-    }
+
     
     // Mobile dropdown toggles
     const dropdownToggles = document.querySelectorAll('.dropdown-toggle');

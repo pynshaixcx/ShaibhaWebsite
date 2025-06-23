@@ -60,10 +60,9 @@ $related_products = array_filter($related_products, function($p) use ($product) 
                     </div>
                     <div class="image-thumbnails">
                         <?php foreach ($image_urls as $index => $url): ?>
-                            <img src="<?php echo $url; ?>" 
-                                 alt="<?php echo htmlspecialchars($product['name']); ?> - Image <?php echo $index + 1; ?>"
-                                 class="thumbnail <?php echo $index === 0 ? 'active' : ''; ?>"
-                                 onclick="changeMainImage(this.src)">
+                            <div class="thumbnail <?php echo $index === 0 ? 'active' : ''; ?>" onclick="changeMainImage('<?php echo $url; ?>', this)">
+                                <img src="<?php echo $url; ?>" alt="<?php echo htmlspecialchars($product['name']); ?> - Thumbnail <?php echo $index + 1; ?>">
+                            </div>
                         <?php endforeach; ?>
                     </div>
                 </div>
@@ -71,13 +70,13 @@ $related_products = array_filter($related_products, function($p) use ($product) 
                 <!-- Product Info -->
                 <div class="product-info">
                     <div class="product-header">
-                        <h1 class="product-title"><?php echo htmlspecialchars($product['name']); ?></h1>
                         <p class="product-brand"><?php echo htmlspecialchars($product['brand']); ?></p>
+                        <h1 class="product-title"><?php echo htmlspecialchars($product['name']); ?></h1>
                         <div class="product-rating">
                             <div class="stars">
                                 <span>★★★★★</span>
                             </div>
-                            <span class="rating-text">Excellent Condition</span>
+                            <span class="rating-text">(Excellent Condition)</span>
                         </div>
                     </div>
 
@@ -85,88 +84,40 @@ $related_products = array_filter($related_products, function($p) use ($product) 
                         <span class="current-price"><?php echo formatPrice($current_price); ?></span>
                         <?php if ($product['sale_price']): ?>
                             <span class="original-price"><?php echo formatPrice($product['price']); ?></span>
-                            <span class="savings">You save <?php echo formatPrice($product['price'] - $product['sale_price']); ?></span>
                         <?php endif; ?>
                     </div>
 
-                    <div class="product-details-info">
-                        <div class="detail-item">
-                            <span class="detail-label">Condition:</span>
-                            <span class="detail-value"><?php echo ucfirst(str_replace('_', ' ', $product['condition_rating'])); ?></span>
-                        </div>
-                        <?php if ($product['size']): ?>
-                            <div class="detail-item">
-                                <span class="detail-label">Size:</span>
-                                <span class="detail-value"><?php echo htmlspecialchars($product['size']); ?></span>
-                            </div>
-                        <?php endif; ?>
-                        <?php if ($product['color']): ?>
-                            <div class="detail-item">
-                                <span class="detail-label">Color:</span>
-                                <span class="detail-value"><?php echo htmlspecialchars($product['color']); ?></span>
-                            </div>
-                        <?php endif; ?>
-                        <?php if ($product['material']): ?>
-                            <div class="detail-item">
-                                <span class="detail-label">Material:</span>
-                                <span class="detail-value"><?php echo htmlspecialchars($product['material']); ?></span>
-                            </div>
-                        <?php endif; ?>
-                        <div class="detail-item">
-                            <span class="detail-label">SKU:</span>
-                            <span class="detail-value"><?php echo htmlspecialchars($product['sku']); ?></span>
-                        </div>
-                    </div>
+                    <p class="product-short-description">
+                        <?php echo htmlspecialchars($product['short_description']); ?>
+                    </p>
 
                     <div class="product-actions">
                         <div class="quantity-selector">
-                            <label for="quantity">Quantity:</label>
-                            <div class="quantity-controls">
-                                <button type="button" onclick="decreaseQuantity()">-</button>
-                                <input type="number" id="quantity" value="1" min="1" max="<?php echo $product['stock_quantity']; ?>">
-                                <button type="button" onclick="increaseQuantity()">+</button>
-                            </div>
+                            <button type="button" onclick="decreaseQuantity()">-</button>
+                            <input type="text" id="quantity" value="1" min="1" max="<?php echo $product['stock_quantity']; ?>" readonly>
+                            <button type="button" onclick="increaseQuantity()">+</button>
                         </div>
-                        
                         <button class="btn btn-primary add-to-cart-btn" onclick="addToCart(<?php echo $product['id']; ?>)">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
-                                <line x1="3" y1="6" x2="21" y2="6"></line>
-                                <path d="M16 10a4 4 0 0 1-8 0"></path>
-                            </svg>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
                             Add to Cart
                         </button>
-                        
                         <button class="btn btn-secondary wishlist-btn">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-                            </svg>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
                             Add to Wishlist
                         </button>
                     </div>
 
                     <div class="shipping-info">
                         <div class="shipping-item">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M16 3h5v5"></path>
-                                <path d="M8 3H3v5"></path>
-                                <path d="M12 22v-8.3a4 4 0 0 0-4-4H3"></path>
-                                <path d="M21 9.5V8a2 2 0 0 0-2-2h-7"></path>
-                            </svg>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 3h5v5"></path><path d="M8 3H3v5"></path><path d="M12 22v-8.3a4 4 0 0 0-4-4H3"></path><path d="M21 9.5V8a2 2 0 0 0-2-2h-7"></path></svg>
                             <span>Free shipping on orders over ₹1,999</span>
                         </div>
                         <div class="shipping-item">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-                                <polyline points="9,22 9,12 15,12 15,22"></polyline>
-                            </svg>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9,22 9,12 15,12 15,22"></polyline></svg>
                             <span>Cash on Delivery available</span>
                         </div>
                         <div class="shipping-item">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M9 12l2 2 4-4"></path>
-                                <circle cx="12" cy="12" r="10"></circle>
-                            </svg>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"></path><circle cx="12" cy="12" r="10"></circle></svg>
                             <span>7-day return policy</span>
                         </div>
                     </div>
@@ -176,7 +127,7 @@ $related_products = array_filter($related_products, function($p) use ($product) 
     </section>
 
     <!-- Product Description -->
-    <section class="product-description">
+    <section class="product-description-section">
         <div class="container">
             <div class="description-tabs">
                 <div class="tab-buttons">
@@ -275,16 +226,14 @@ $related_products = array_filter($related_products, function($p) use ($product) 
 </main>
 
 <script>
-function changeMainImage(src) {
+function changeMainImage(src, element) {
     document.getElementById('main-product-image').src = src;
     
     // Update active thumbnail
     document.querySelectorAll('.thumbnail').forEach(thumb => {
         thumb.classList.remove('active');
-        if (thumb.src === src) {
-            thumb.classList.add('active');
-        }
     });
+    element.classList.add('active');
 }
 
 function increaseQuantity() {
