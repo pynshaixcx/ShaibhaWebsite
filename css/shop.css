@@ -730,10 +730,18 @@
     .search-input-group input {
         flex: 1;
         min-width: 0;
+        padding: var(--spacing-md);
+        font-size: 0.9rem;
     }
     
     .search-btn {
         white-space: nowrap;
+        padding: var(--spacing-md);
+    }
+    
+    .search-overlay .search-container {
+        width: 90%;
+        max-width: 350px;
     }
 }
 

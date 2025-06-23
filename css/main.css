@@ -360,7 +360,7 @@ h1, h2, h3, h4, h5, h6 {
     border-radius: var(--border-radius-xl);
     padding: var(--spacing-md);
     width: 90%;
-    max-width: 500px;
+    max-width: 400px;
     position: relative;
 }
 
@@ -948,19 +948,3 @@ img {
 .p-md { padding: var(--spacing-md); }
 .p-lg { padding: var(--spacing-lg); }
 .p-xl { padding: var(--spacing-xl); }
-
-/* Responsive Styles */
-@media (max-width: 767px) {
-    .hero-section {
-        text-align: center;
-    }
-    
-    .hero-actions {
-        flex-direction: column;
-        gap: var(--spacing-sm);
-    }
-    
-    .categories-grid {
-        grid-template-columns: 1fr;
-    }
-}

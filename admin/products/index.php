@@ -83,6 +83,240 @@ $categories = fetchAll("SELECT id, name FROM categories WHERE status = 'active' 
     
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="../../images/favicon.svg">
+    
+    <style>
+        .product-image-cell {
+            width: 80px;
+        }
+        
+        .product-thumbnail {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: var(--border-radius-md);
+        }
+        
+        .product-name {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .product-name a {
+            color: var(--color-black);
+            font-weight: 600;
+            text-decoration: none;
+            margin-bottom: 4px;
+        }
+        
+        .product-name a:hover {
+            text-decoration: underline;
+        }
+        
+        .product-sku {
+            font-size: 0.8rem;
+            color: var(--color-gray-500);
+        }
+        
+        .sale-price {
+            font-weight: 700;
+            color: var(--color-black);
+        }
+        
+        .original-price {
+            text-decoration: line-through;
+            color: var(--color-gray-500);
+            font-size: 0.9rem;
+            margin-left: 5px;
+        }
+        
+        .stock-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            background: #dcfce7;
+            color: #166534;
+        }
+        
+        .stock-badge.low-stock {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .status-active {
+            background: #dcfce7;
+            color: #166534;
+        }
+        
+        .status-inactive {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+        
+        .status-sold {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+        
+        .table-actions {
+            display: flex;
+            gap: 5px;
+        }
+        
+        .action-btn {
+            width: 28px;
+            height: 28px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s ease;
+        }
+        
+        .edit-btn {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        
+        .edit-btn:hover {
+            background: #a7f3d0;
+        }
+        
+        .view-btn {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+        
+        .view-btn:hover {
+            background: #bfdbfe;
+        }
+        
+        .delete-btn {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+        
+        .delete-btn:hover {
+            background: #fecaca;
+        }
+        
+        .filters-section {
+            background: var(--color-white);
+            border-radius: var(--border-radius-lg);
+            padding: var(--spacing-lg);
+            margin-bottom: var(--spacing-lg);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        .filters-form {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--spacing-md);
+            align-items: flex-end;
+        }
+        
+        .filter-group {
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .filter-group label {
+            display: block;
+            margin-bottom: var(--spacing-xs);
+            font-weight: 600;
+            color: var(--color-gray-700);
+        }
+        
+        .filter-group input,
+        .filter-group select {
+            width: 100%;
+            padding: var(--spacing-sm);
+            border: 1px solid var(--color-gray-300);
+            border-radius: var(--border-radius-md);
+            background: var(--color-white);
+        }
+        
+        .filter-actions {
+            display: flex;
+            gap: var(--spacing-sm);
+        }
+        
+        .table-section {
+            background: var(--color-white);
+            border-radius: var(--border-radius-lg);
+            padding: var(--spacing-lg);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-lg);
+        }
+        
+        .table-header h2 {
+            font-size: 1.2rem;
+            color: var(--color-black);
+        }
+        
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .data-table th {
+            text-align: left;
+            padding: var(--spacing-sm);
+            color: var(--color-gray-700);
+            font-weight: 600;
+            border-bottom: 2px solid var(--color-gray-200);
+            cursor: pointer;
+        }
+        
+        .data-table td {
+            padding: var(--spacing-sm);
+            border-bottom: 1px solid var(--color-gray-200);
+            color: var(--color-gray-800);
+        }
+        
+        .data-table tr:hover td {
+            background: var(--color-gray-100);
+        }
+        
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: var(--spacing-sm);
+            margin-top: var(--spacing-xl);
+        }
+        
+        .pagination-link {
+            padding: var(--spacing-sm) var(--spacing-md);
+            border: 1px solid var(--color-gray-300);
+            border-radius: var(--border-radius-md);
+            color: var(--color-gray-700);
+            text-decoration: none;
+            transition: all var(--transition-fast);
+        }
+        
+        .pagination-link:hover,
+        .pagination-link.active {
+            background: var(--color-black);
+            color: var(--color-white);
+            border-color: var(--color-black);
+        }
+    </style>
 </head>
 <body>
     <div class="admin-layout">
@@ -259,7 +493,7 @@ $categories = fetchAll("SELECT id, name FROM categories WHERE status = 'active' 
                                     <?php foreach ($products as $product): ?>
                                         <tr>
                                             <td class="product-image-cell">
-                                                <img src="https://images.pexels.com/photos/1536619/pexels-photo-1536619.jpeg" alt="<?php echo htmlspecialchars($product['name']); ?>" class="product-thumbnail">
+                                                <img src="../../images/products/product_<?php echo rand(1, 3); ?>.jpg" alt="<?php echo htmlspecialchars($product['name']); ?>" class="product-thumbnail">
                                             </td>
                                             <td>
                                                 <div class="product-name">

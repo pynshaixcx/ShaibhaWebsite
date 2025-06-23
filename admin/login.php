@@ -8,6 +8,7 @@ if (isAdminLoggedIn()) {
 }
 
 $error = '';
+$success = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = sanitizeInput($_POST['username'] ?? '');
@@ -37,6 +38,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Redirect to dashboard
             redirect('index.php');
         } else {
+            // For testing purposes, let's check if the admin exists but password doesn't match
+            if ($admin) {
+                $error = 'Invalid password. Please try again.';
+            } else {
+                $error = 'Invalid username or password';
+            }
+            
             // Failed login attempt
             if ($admin) {
                 // Increment login attempts
@@ -50,11 +58,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 
                 if ($attempts >= 5) {
                     $error = 'Too many failed login attempts. Account locked for 30 minutes.';
-                } else {
-                    $error = 'Invalid username or password';
                 }
-            } else {
-                $error = 'Invalid username or password';
             }
         }
     }
@@ -94,6 +98,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <?php if ($error): ?>
                     <div class="alert alert-error">
                         <?php echo htmlspecialchars($error); ?>
+                    </div>
+                <?php endif; ?>
+                
+                <?php if ($success): ?>
+                    <div class="alert alert-success">
+                        <?php echo htmlspecialchars($success); ?>
                     </div>
                 <?php endif; ?>
                 

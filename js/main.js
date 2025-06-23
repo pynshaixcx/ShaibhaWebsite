@@ -116,27 +116,25 @@ function initializeMobileMenu() {
         // Mobile dropdown toggles
         const dropdownToggles = document.querySelectorAll('.dropdown-toggle');
         
-        if (window.innerWidth < 992) {
-            dropdownToggles.forEach(toggle => {
-                toggle.addEventListener('click', function(e) {
-                    if (window.innerWidth < 992) {
-                        e.preventDefault();
-                        const parent = this.parentElement;
-                        const dropdown = parent.querySelector('.dropdown-menu');
-                        
-                        // Close all other dropdowns
-                        document.querySelectorAll('.dropdown-menu.active').forEach(menu => {
-                            if (menu !== dropdown) {
-                                menu.classList.remove('active');
-                            }
-                        });
-                        
-                        // Toggle this dropdown
-                        dropdown.classList.toggle('active');
-                    }
-                });
+        dropdownToggles.forEach(toggle => {
+            toggle.addEventListener('click', function(e) {
+                if (window.innerWidth < 992) {
+                    e.preventDefault();
+                    const parent = this.parentElement;
+                    const dropdown = parent.querySelector('.dropdown-menu');
+                    
+                    // Close all other dropdowns
+                    document.querySelectorAll('.dropdown-menu.active').forEach(menu => {
+                        if (menu !== dropdown) {
+                            menu.classList.remove('active');
+                        }
+                    });
+                    
+                    // Toggle this dropdown
+                    dropdown.classList.toggle('active');
+                }
             });
-        }
+        });
         
         // Close menu on link click (except dropdown toggles)
         const navLinks = navMenu.querySelectorAll('.nav-link:not(.dropdown-toggle)');
@@ -227,14 +225,16 @@ function initializeProductInteractions() {
             }
         });
         
-        // Add hover effect enhancement
-        card.addEventListener('mouseenter', () => {
-            card.style.transform = 'translateY(-8px) scale(1.02)';
-        });
-        
-        card.addEventListener('mouseleave', () => {
-            card.style.transform = 'translateY(0) scale(1)';
-        });
+        // Add hover effect enhancement for desktop
+        if (window.matchMedia('(hover: hover)').matches) {
+            card.addEventListener('mouseenter', () => {
+                card.style.transform = 'translateY(-8px) scale(1.02)';
+            });
+            
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'translateY(0) scale(1)';
+            });
+        }
     });
     
     // Product card interactions
@@ -255,6 +255,25 @@ function initializeProductInteractions() {
             // Navigate to product page
             console.log('Navigate to product page');
         });
+        
+        // Add hover effect for desktop
+        if (window.matchMedia('(hover: hover)').matches) {
+            card.addEventListener('mouseenter', () => {
+                const img = card.querySelector('.product-image img');
+                if (img) {
+                    img.style.filter = 'grayscale(0%)';
+                    img.style.transform = 'scale(1.1)';
+                }
+            });
+            
+            card.addEventListener('mouseleave', () => {
+                const img = card.querySelector('.product-image img');
+                if (img) {
+                    img.style.filter = '';
+                    img.style.transform = '';
+                }
+            });
+        }
     });
 }
 
