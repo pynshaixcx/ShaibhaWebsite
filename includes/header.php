@@ -205,7 +205,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Update cart count
     function updateCartCount() {
-        fetch('/cart/ajax/count.php')
+        fetch('/cart/ajax/get-cart-count.php')
             .then(response => response.json())
             .then(data => {
                 const cartCount = document.getElementById('cart-count');
@@ -225,5 +225,3 @@ document.addEventListener('DOMContentLoaded', function() {
     updateCartCount();
 });
 </script>
-</body>
-</html>

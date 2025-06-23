@@ -18,7 +18,13 @@ $page_description = $product['short_description'] ?: substr(strip_tags($product[
 
 include_once '../includes/header.php';
 
-$product_images = getProductImages($product['id']);
+// Use Pexels images instead of trying to load from uploads
+$image_urls = [
+    "https://images.pexels.com/photos/1536619/pexels-photo-1536619.jpeg",
+    "https://images.pexels.com/photos/996329/pexels-photo-996329.jpeg",
+    "https://images.pexels.com/photos/1043474/pexels-photo-1043474.jpeg"
+];
+
 $current_price = $product['sale_price'] ?: $product['price'];
 $discount_percent = $product['sale_price'] ? calculateDiscountPercentage($product['price'], $product['sale_price']) : 0;
 
@@ -37,21 +43,19 @@ $related_products = array_filter($related_products, function($p) use ($product) 
                 <!-- Product Images -->
                 <div class="product-images">
                     <div class="main-image">
-                        <img id="main-product-image" src="https://images.pexels.com/photos/1536619/pexels-photo-1536619.jpeg" alt="<?php echo htmlspecialchars($product['name']); ?>">
+                        <img id="main-product-image" src="<?php echo $image_urls[0]; ?>" alt="<?php echo htmlspecialchars($product['name']); ?>">
                         <?php if ($discount_percent > 0): ?>
                             <span class="discount-badge"><?php echo $discount_percent; ?>% OFF</span>
                         <?php endif; ?>
                     </div>
-                    <?php if (count($product_images) > 1): ?>
-                        <div class="image-thumbnails">
-                            <?php foreach ($product_images as $index => $image): ?>
-                                <img src="https://images.pexels.com/photos/1536619/pexels-photo-1536619.jpeg" 
-                                     alt="<?php echo htmlspecialchars($image['alt_text'] ?: $product['name']); ?>"
-                                     class="thumbnail <?php echo $index === 0 ? 'active' : ''; ?>"
-                                     onclick="changeMainImage(this.src)">
-                            <?php endforeach; ?>
-                        </div>
-                    <?php endif; ?>
+                    <div class="image-thumbnails">
+                        <?php foreach ($image_urls as $index => $url): ?>
+                            <img src="<?php echo $url; ?>" 
+                                 alt="<?php echo htmlspecialchars($product['name']); ?> - Image <?php echo $index + 1; ?>"
+                                 class="thumbnail <?php echo $index === 0 ? 'active' : ''; ?>"
+                                 onclick="changeMainImage(this.src)">
+                        <?php endforeach; ?>
+                    </div>
                 </div>
 
                 <!-- Product Info -->
@@ -228,12 +232,12 @@ $related_products = array_filter($related_products, function($p) use ($product) 
                 <div class="products-grid">
                     <?php foreach (array_slice($related_products, 0, 4) as $related): ?>
                         <?php
-                        $related_image = getPrimaryProductImage($related['id']);
+                        $related_image = $image_urls[array_rand($image_urls)];
                         $related_price = $related['sale_price'] ?: $related['price'];
                         ?>
                         <div class="product-card">
                             <div class="product-image">
-                                <img src="https://images.pexels.com/photos/996329/pexels-photo-996329.jpeg" alt="<?php echo htmlspecialchars($related['name']); ?>">
+                                <img src="<?php echo $related_image; ?>" alt="<?php echo htmlspecialchars($related['name']); ?>">
                                 <div class="product-overlay">
                                     <a href="product.php?slug=<?php echo $related['slug']; ?>" class="quick-view-btn">View Product</a>
                                 </div>
@@ -552,6 +556,24 @@ $related_products = array_filter($related_products, function($p) use ($product) 
     padding: var(--spacing-3xl) 0;
 }
 
+.product-overlay .quick-view-btn {
+    background: var(--color-white);
+    color: var(--color-black);
+    border: none;
+    padding: var(--spacing-sm) var(--spacing-lg);
+    border-radius: var(--border-radius-md);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    text-decoration: none;
+    display: inline-block;
+}
+
+.product-overlay .quick-view-btn:hover {
+    background: var(--color-black);
+    color: var(--color-white);
+}
+
 /* Responsive */
 @media (max-width: 992px) {
     .product-layout {
@@ -595,8 +617,10 @@ function changeMainImage(src) {
     // Update active thumbnail
     document.querySelectorAll('.thumbnail').forEach(thumb => {
         thumb.classList.remove('active');
+        if (thumb.src === src) {
+            thumb.classList.add('active');
+        }
     });
-    event.target.classList.add('active');
 }
 
 function increaseQuantity() {
@@ -629,11 +653,13 @@ function showTab(tabName) {
     
     // Show selected tab
     document.getElementById(tabName).classList.add('active');
-    event.target.classList.add('active');
+    
+    // Add active class to clicked button
+    document.querySelector(`.tab-btn[onclick="showTab('${tabName}')"]`).classList.add('active');
 }
 
 function addToCart(productId) {
-    const quantity = document.getElementById('quantity').value;
+    const quantity = parseInt(document.getElementById('quantity').value);
     
     fetch('../cart/ajax/add-to-cart.php', {
         method: 'POST',
@@ -642,21 +668,28 @@ function addToCart(productId) {
         },
         body: JSON.stringify({
             product_id: productId,
-            quantity: parseInt(quantity)
+            quantity: quantity
         })
     })
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            updateCartCount(data.cart_count);
-            showNotification('Product added to cart!', 'success');
+            // Update cart count
+            const cartCount = document.getElementById('cart-count');
+            if (cartCount) {
+                cartCount.textContent = data.cart_count;
+                cartCount.style.display = 'flex';
+            }
+            
+            // Show success message
+            alert('Product added to cart!');
         } else {
-            showNotification('Error adding product to cart', 'error');
+            alert(data.message || 'Error adding product to cart');
         }
     })
     .catch(error => {
         console.error('Error:', error);
-        showNotification('Error adding product to cart', 'error');
+        alert('Error adding product to cart');
     });
 }
 </script>

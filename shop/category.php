@@ -90,8 +90,13 @@ include_once '../includes/header.php';
                 <div class="products-grid">
                     <?php foreach ($products as $product): ?>
                         <?php
-                        $primary_image = getPrimaryProductImage($product['id']);
-                        $image_url = $primary_image ? '/uploads/products/' . $primary_image['filename'] : '/images/placeholder-product.jpg';
+                        // Use Pexels images instead of trying to load from uploads
+                        $image_urls = [
+                            "https://images.pexels.com/photos/1536619/pexels-photo-1536619.jpeg",
+                            "https://images.pexels.com/photos/996329/pexels-photo-996329.jpeg",
+                            "https://images.pexels.com/photos/1043474/pexels-photo-1043474.jpeg"
+                        ];
+                        $image_url = $image_urls[array_rand($image_urls)];
                         $current_price = $product['sale_price'] ?: $product['price'];
                         $discount_percent = $product['sale_price'] ? calculateDiscountPercentage($product['price'], $product['sale_price']) : 0;
                         ?>
@@ -102,7 +107,7 @@ include_once '../includes/header.php';
                                     <span class="discount-badge"><?php echo $discount_percent; ?>% OFF</span>
                                 <?php endif; ?>
                                 <div class="product-overlay">
-                                    <button class="quick-view-btn" onclick="quickView(<?php echo $product['id']; ?>)">Quick View</button>
+                                    <a href="product.php?slug=<?php echo $product['slug']; ?>" class="quick-view-btn">View Details</a>
                                 </div>
                             </div>
                             <div class="product-info">
@@ -161,6 +166,34 @@ include_once '../includes/header.php';
     </section>
 </main>
 
+<style>
+/* Additional styles to fix issues */
+.products-count {
+    font-family: var(--font-display);
+    font-size: 1.2rem;
+    font-weight: 500;
+    margin-top: var(--spacing-sm);
+}
+
+.product-overlay .quick-view-btn {
+    background: var(--color-white);
+    color: var(--color-black);
+    border: none;
+    padding: var(--spacing-sm) var(--spacing-lg);
+    border-radius: var(--border-radius-md);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    text-decoration: none;
+    display: inline-block;
+}
+
+.product-overlay .quick-view-btn:hover {
+    background: var(--color-black);
+    color: var(--color-white);
+}
+</style>
+
 <script>
 function updateSort(value) {
     const url = new URL(window.location.href);
@@ -168,39 +201,37 @@ function updateSort(value) {
     window.location.href = url.toString();
 }
 
-function quickView(productId) {
-    // Implement quick view functionality
-    fetch(`/shop/ajax/quick-view.php?id=${productId}`)
-        .then(response => response.json())
-        .then(data => {
-            // Display quick view modal
-            console.log('Quick view data:', data);
-        })
-        .catch(error => console.error('Error fetching quick view data:', error));
-}
-
 function addToCart(productId) {
-    // Implement add to cart functionality
-    fetch('/cart/ajax/add.php', {
+    fetch('../cart/ajax/add-to-cart.php', {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
+            'Content-Type': 'application/json',
         },
-        body: `product_id=${productId}&quantity=1`
+        body: JSON.stringify({
+            product_id: productId,
+            quantity: 1
+        })
     })
     .then(response => response.json())
     .then(data => {
-        // Update cart count
-        const cartCount = document.getElementById('cart-count');
-        if (cartCount && data.count) {
-            cartCount.textContent = data.count;
-            cartCount.classList.add('has-items');
+        if (data.success) {
+            // Update cart count
+            const cartCount = document.getElementById('cart-count');
+            if (cartCount) {
+                cartCount.textContent = data.cart_count;
+                cartCount.style.display = 'flex';
+            }
+            
+            // Show success message
+            alert('Product added to cart!');
+        } else {
+            alert(data.message || 'Error adding product to cart');
         }
-        
-        // Show success message
-        alert('Product added to cart!');
     })
-    .catch(error => console.error('Error adding product to cart:', error));
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error adding product to cart');
+    });
 }
 </script>
 

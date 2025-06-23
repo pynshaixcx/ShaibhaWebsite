@@ -186,7 +186,9 @@ function initializeAnimations() {
     const words = document.querySelectorAll('.word[data-delay]');
     words.forEach(word => {
         const delay = parseInt(word.getAttribute('data-delay'));
-        word.style.animationDelay = `${delay}ms`;
+        word.style.opacity = '0';
+        word.style.transform = 'translateY(20px)';
+        word.style.animation = `slideInUp 0.6s forwards ${delay}ms`;
     });
     
     // Intersection Observer for scroll animations
@@ -299,7 +301,7 @@ function initializeCart() {
     }
     
     // Initialize cart count on page load
-    fetch('ajax/get-cart-count.php')
+    fetch('/cart/ajax/get-cart-count.php')
         .then(response => response.json())
         .then(data => {
             updateCartCount(data.count || 0);
@@ -453,6 +455,17 @@ document.head.insertAdjacentHTML('beforeend', `
         .loaded .hero-actions,
         .loaded .hero-image {
             animation-play-state: running;
+        }
+        
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
     </style>
 `);
