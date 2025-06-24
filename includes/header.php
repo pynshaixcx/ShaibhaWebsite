@@ -47,6 +47,14 @@
                 </a>
             </div>
             
+            <div class="mobile-menu-toggle">
+                <button class="mobile-menu-btn" id="mobile-menu-btn">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+
             <div class="nav-menu" id="nav-menu">
                 <ul class="nav-list">
                     <li class="nav-item">
@@ -118,14 +126,6 @@
                         <span class="cart-count" id="cart-count">0</span>
                     </a>
                 </div>
-                
-                <div class="mobile-menu-toggle">
-                    <button class="mobile-menu-btn" id="mobile-menu-btn">
-                        <span></span>
-                        <span></span>
-                        <span></span>
-                    </button>
-                </div>
             </div>
             
             <!-- Search Overlay -->
@@ -134,14 +134,14 @@
                     <form class="search-form" action="/shop/search.php" method="GET">
                         <input type="text" name="q" class="search-input" placeholder="Search for products..." autocomplete="off" required>
                         <button type="submit" class="search-submit">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <circle cx="11" cy="11" r="8"></circle>
                                 <path d="m21 21-4.35-4.35"></path>
                             </svg>
                         </button>
                     </form>
                     <button class="search-close" id="search-close">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <line x1="18" y1="6" x2="6" y2="18"></line>
                             <line x1="6" y1="6" x2="18" y2="18"></line>
                         </svg>
@@ -153,9 +153,40 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-
+    // Update cart count
+    function updateCartCount() {
+        fetch('/cart/ajax/get-cart-count.php')
+            .then(response => response.json())
+            .then(data => {
+                const cartCount = document.getElementById('cart-count');
+                if (cartCount) {
+                    cartCount.textContent = data.count;
+                    if (data.count > 0) {
+                        cartCount.classList.add('has-items');
+                    } else {
+                        cartCount.classList.remove('has-items');
+                    }
+                }
+            })
+            .catch(error => console.error('Error fetching cart count:', error));
+    }
     
-    // Mobile dropdown toggles
+    // Initial cart count update
+    updateCartCount();
+    
+    // Mobile menu toggle
+    const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+    const navMenu = document.getElementById('nav-menu');
+    
+    if (mobileMenuBtn && navMenu) {
+        mobileMenuBtn.addEventListener('click', function() {
+            this.classList.toggle('active');
+            navMenu.classList.toggle('active');
+            document.body.classList.toggle('menu-open');
+        });
+    }
+    
+    // Dropdown toggles for mobile
     const dropdownToggles = document.querySelectorAll('.dropdown-toggle');
     
     dropdownToggles.forEach(toggle => {
@@ -182,7 +213,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const searchBtn = document.getElementById('search-btn');
     const searchOverlay = document.getElementById('search-overlay');
     const searchClose = document.getElementById('search-close');
-    const searchInput = document.querySelector('.search-input');
     
     if (searchBtn && searchOverlay && searchClose) {
         searchBtn.addEventListener('click', function() {
@@ -193,27 +223,20 @@ document.addEventListener('DOMContentLoaded', function() {
         searchClose.addEventListener('click', function() {
             searchOverlay.classList.remove('active');
         });
+        
+        // Close on escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && searchOverlay.classList.contains('active')) {
+                searchOverlay.classList.remove('active');
+            }
+        });
+        
+        // Close on overlay click
+        searchOverlay.addEventListener('click', function(e) {
+            if (e.target === searchOverlay) {
+                searchOverlay.classList.remove('active');
+            }
+        });
     }
-    
-    // Update cart count
-    function updateCartCount() {
-        fetch('/cart/ajax/get-cart-count.php')
-            .then(response => response.json())
-            .then(data => {
-                const cartCount = document.getElementById('cart-count');
-                if (cartCount) {
-                    cartCount.textContent = data.count;
-                    if (data.count > 0) {
-                        cartCount.classList.add('has-items');
-                    } else {
-                        cartCount.classList.remove('has-items');
-                    }
-                }
-            })
-            .catch(error => console.error('Error fetching cart count:', error));
-    }
-    
-    // Initial cart count update
-    updateCartCount();
 });
 </script>

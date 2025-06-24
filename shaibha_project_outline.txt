@@ -1,0 +1,622 @@
+
+================================================================================
+                ShaiBha - Pre-loved Fashion E-commerce Platform                 
+================================================================================
+
+Project Outline & Technical Documentation
+Date: May 2025
+
+TABLE OF CONTENTS
+--------------------------------------------------------------------------------
+
+1. PROJECT OVERVIEW
+--------------------------------------------------------------------------------
+ShaiBha is a curated marketplace for pre-loved fashion items, specializing in high-quality, authentic designer and branded clothing. The platform aims to make sustainable fashion accessible while offering unique pieces at affordable prices.
+The platform focuses on creating a premium shopping experience for customers looking for sustainable fashion options. Each item in the collection is carefully curated, authenticated, and described in detail to ensure customers have confidence in their purchases.
+
+1.1 Project Objectives
+  • Create a user-friendly e-commerce platform for pre-loved fashion
+  • Implement secure user authentication and account management
+  • Develop a robust product catalog with detailed condition descriptions
+  • Build a secure shopping cart and checkout system with COD payment option
+  • Create an admin panel for inventory, order, and customer management
+  • Implement responsive design for all device types
+  • Promote sustainable fashion through educational content
+  • Build a community of conscious consumers
+
+1.2 Target Audience
+  • Fashion-conscious consumers interested in sustainable shopping
+  • Budget-conscious shoppers looking for quality designer items
+  • Environmentally conscious consumers
+  • Fashion enthusiasts seeking unique pieces
+  • Millennials and Gen Z consumers with sustainability values
+  • Luxury fashion enthusiasts looking for affordable options
+
+1.3 Key Features
+  • User registration and profile management
+  • Product browsing with advanced filtering and search
+  • Detailed product pages with condition ratings and descriptions
+  • Shopping cart and checkout functionality
+  • Order tracking and history
+  • Admin dashboard for inventory and order management
+  • Responsive design for mobile and desktop users
+  • Detailed product condition assessment system
+  • Secure Cash on Delivery payment option
+  • Comprehensive admin reporting tools
+
+1.4 Business Model
+  • Curated marketplace for pre-loved fashion
+  • Revenue from sales of pre-owned items
+  • Potential for consignment model in future phases
+  • Focus on quality over quantity
+  • Building brand reputation through authentication and quality assurance
+  • Sustainable fashion education and community building
+
+2. SYSTEM ARCHITECTURE
+--------------------------------------------------------------------------------
+The ShaiBha platform follows a traditional web application architecture with the following components:
+
+2.1 Frontend
+  • HTML5, CSS3, JavaScript
+  • Responsive design using custom CSS
+  • Client-side validation and interactivity
+  • Modern UI with glass morphism effects
+  • Optimized for mobile and desktop devices
+
+2.2 Backend
+  • PHP for server-side processing
+  • MySQL database for data storage
+  • RESTful API endpoints for AJAX interactions
+  • MVC-inspired architecture for code organization
+  • Secure authentication and authorization
+
+2.3 Server Environment
+  • Apache web server
+  • PHP 7.4+
+  • MySQL 5.7+
+  • SSL encryption for secure data transmission
+  • Regular backups and security updates
+
+2.4 External Integrations
+  • Payment gateway (future implementation)
+  • Email notification service
+  • Image storage and optimization
+  • Analytics tracking
+
+2.5 System Architecture Diagram
+```
+┌───────────────┐      ┌───────────────┐      ┌───────────────┐
+│               │      │               │      │               │
+│   Frontend    │◄────►│    Backend    │◄────►│   Database    │
+│  (HTML/CSS/JS)│      │     (PHP)     │      │    (MySQL)    │
+│               │      │               │      │               │
+└───────────────┘      └───────────────┘      └───────────────┘
+        ▲                      ▲                      ▲
+        │                      │                      │
+        ▼                      ▼                      ▼
+┌───────────────┐      ┌───────────────┐      ┌───────────────┐
+│               │      │               │      │               │
+│  User Browser │      │  Admin Panel  │      │ External APIs │
+│               │      │               │      │               │
+└───────────────┘      └───────────────┘      └───────────────┘
+```
+
+3. DATABASE SCHEMA
+--------------------------------------------------------------------------------
+The database schema consists of the following main tables:
+
+3.1 customers Table
+Description: Stores customer account information
+Fields:
+    • id (INT) PRIMARY KEY, AUTO_INCREMENT
+    • first_name (VARCHAR(100)) NOT NULL
+    • last_name (VARCHAR(100)) NOT NULL
+    • email (VARCHAR(255)) UNIQUE, NOT NULL
+    • phone (VARCHAR(20)) 
+    • password (VARCHAR(255)) NOT NULL
+    • date_of_birth (DATE) 
+    • gender (ENUM('male', 'female', 'other')) 
+    • status (ENUM('active', 'inactive')) DEFAULT 'active'
+    • email_verified (BOOLEAN) DEFAULT FALSE
+    • last_login (TIMESTAMP) NULL
+    • created_at (TIMESTAMP) DEFAULT CURRENT_TIMESTAMP
+    • updated_at (TIMESTAMP) DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+
+3.2 customer_addresses Table
+Description: Stores customer shipping and billing addresses
+Fields:
+    • id (INT) PRIMARY KEY, AUTO_INCREMENT
+    • customer_id (INT) NOT NULL, FOREIGN KEY
+    • type (ENUM('billing', 'shipping')) DEFAULT 'shipping'
+    • first_name (VARCHAR(100)) NOT NULL
+    • last_name (VARCHAR(100)) NOT NULL
+    • address_line_1 (VARCHAR(255)) NOT NULL
+    • address_line_2 (VARCHAR(255)) 
+    • city (VARCHAR(100)) NOT NULL
+    • state (VARCHAR(100)) NOT NULL
+    • postal_code (VARCHAR(20)) NOT NULL
+    • country (VARCHAR(100)) DEFAULT 'India'
+    • is_default (BOOLEAN) DEFAULT FALSE
+
+3.3 categories Table
+Description: Stores product categories
+Fields:
+    • id (INT) PRIMARY KEY, AUTO_INCREMENT
+    • name (VARCHAR(100)) NOT NULL
+    • slug (VARCHAR(100)) UNIQUE, NOT NULL
+    • description (TEXT) 
+    • image (VARCHAR(255)) 
+    • parent_id (INT) NULL, FOREIGN KEY
+    • status (ENUM('active', 'inactive')) DEFAULT 'active'
+    • created_at (TIMESTAMP) DEFAULT CURRENT_TIMESTAMP
+    • updated_at (TIMESTAMP) DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+
+3.4 products Table
+Description: Stores product information
+Fields:
+    • id (INT) PRIMARY KEY, AUTO_INCREMENT
+    • name (VARCHAR(255)) NOT NULL
+    • slug (VARCHAR(255)) UNIQUE, NOT NULL
+    • description (TEXT) 
+    • short_description (VARCHAR(500)) 
+    • category_id (INT) NOT NULL, FOREIGN KEY
+    • price (DECIMAL(10,2)) NOT NULL
+    • sale_price (DECIMAL(10,2)) NULL
+    • sku (VARCHAR(100)) UNIQUE
+    • stock_quantity (INT) DEFAULT 1
+    • condition_rating (ENUM('excellent', 'very_good', 'good', 'fair')) DEFAULT 'good'
+    • size (VARCHAR(50)) 
+    • color (VARCHAR(50)) 
+    • brand (VARCHAR(100)) 
+    • material (VARCHAR(100)) 
+    • care_instructions (TEXT) 
+    • featured (BOOLEAN) DEFAULT FALSE
+    • status (ENUM('active', 'inactive', 'sold')) DEFAULT 'active'
+    • created_at (TIMESTAMP) DEFAULT CURRENT_TIMESTAMP
+    • updated_at (TIMESTAMP) DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+
+3.5 product_images Table
+Description: Stores product images
+Fields:
+    • id (INT) PRIMARY KEY, AUTO_INCREMENT
+    • product_id (INT) NOT NULL, FOREIGN KEY
+    • image_path (VARCHAR(255)) NOT NULL
+    • alt_text (VARCHAR(255)) 
+    • is_primary (BOOLEAN) DEFAULT FALSE
+    • sort_order (INT) DEFAULT 0
+    • created_at (TIMESTAMP) DEFAULT CURRENT_TIMESTAMP
+
+3.6 cart Table
+Description: Stores shopping cart items
+Fields:
+    • id (INT) PRIMARY KEY, AUTO_INCREMENT
+    • session_id (VARCHAR(255)) NOT NULL
+    • customer_id (INT) NULL, FOREIGN KEY
+    • product_id (INT) NOT NULL, FOREIGN KEY
+    • quantity (INT) NOT NULL DEFAULT 1
+    • added_at (TIMESTAMP) DEFAULT CURRENT_TIMESTAMP
+    • updated_at (TIMESTAMP) DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+
+3.7 orders Table
+Description: Stores order information
+Fields:
+    • id (INT) PRIMARY KEY, AUTO_INCREMENT
+    • order_number (VARCHAR(50)) UNIQUE, NOT NULL
+    • customer_id (INT) NULL, FOREIGN KEY
+    • customer_email (VARCHAR(255)) NOT NULL
+    • customer_phone (VARCHAR(20)) NOT NULL
+    • billing_first_name (VARCHAR(100)) NOT NULL
+    • billing_last_name (VARCHAR(100)) NOT NULL
+    • billing_address_line_1 (VARCHAR(255)) NOT NULL
+    • billing_address_line_2 (VARCHAR(255)) 
+    • billing_city (VARCHAR(100)) NOT NULL
+    • billing_state (VARCHAR(100)) NOT NULL
+    • billing_postal_code (VARCHAR(20)) NOT NULL
+    • billing_country (VARCHAR(100)) DEFAULT 'India'
+    • shipping_first_name (VARCHAR(100)) NOT NULL
+    • shipping_last_name (VARCHAR(100)) NOT NULL
+    • shipping_address_line_1 (VARCHAR(255)) NOT NULL
+    • shipping_address_line_2 (VARCHAR(255)) 
+    • shipping_city (VARCHAR(100)) NOT NULL
+    • shipping_state (VARCHAR(100)) NOT NULL
+    • shipping_postal_code (VARCHAR(20)) NOT NULL
+    • shipping_country (VARCHAR(100)) DEFAULT 'India'
+    • subtotal (DECIMAL(10,2)) NOT NULL
+    • shipping_cost (DECIMAL(10,2)) DEFAULT 0.00
+    • total_amount (DECIMAL(10,2)) NOT NULL
+    • payment_method (ENUM('cod')) DEFAULT 'cod'
+    • payment_status (ENUM('pending', 'paid', 'failed', 'refunded')) DEFAULT 'pending'
+    • order_status (ENUM('pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled', 'returned')) DEFAULT 'pending'
+    • notes (TEXT) 
+    • admin_notes (TEXT) 
+    • tracking_number (VARCHAR(100)) 
+    • shipped_at (TIMESTAMP) NULL
+    • delivered_at (TIMESTAMP) NULL
+    • created_at (TIMESTAMP) DEFAULT CURRENT_TIMESTAMP
+    • updated_at (TIMESTAMP) DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+
+3.8 order_items Table
+Description: Stores items within an order
+Fields:
+    • id (INT) PRIMARY KEY, AUTO_INCREMENT
+    • order_id (INT) NOT NULL, FOREIGN KEY
+    • product_id (INT) NOT NULL, FOREIGN KEY
+    • product_name (VARCHAR(255)) NOT NULL
+    • product_sku (VARCHAR(100)) 
+    • product_slug (VARCHAR(255)) 
+    • quantity (INT) NOT NULL
+    • price (DECIMAL(10,2)) NOT NULL
+    • total (DECIMAL(10,2)) NOT NULL
+    • product_condition (VARCHAR(50)) 
+    • product_size (VARCHAR(50)) 
+    • product_color (VARCHAR(50)) 
+    • product_brand (VARCHAR(100)) 
+    • created_at (TIMESTAMP) DEFAULT CURRENT_TIMESTAMP
+
+3.9 admin_users Table
+Description: Stores admin user accounts
+Fields:
+    • id (INT) PRIMARY KEY, AUTO_INCREMENT
+    • username (VARCHAR(100)) UNIQUE, NOT NULL
+    • email (VARCHAR(255)) UNIQUE, NOT NULL
+    • password (VARCHAR(255)) NOT NULL
+    • full_name (VARCHAR(255)) NOT NULL
+    • role (ENUM('admin', 'manager', 'staff')) DEFAULT 'staff'
+    • status (ENUM('active', 'inactive')) DEFAULT 'active'
+    • permissions (JSON) 
+    • avatar (VARCHAR(255)) 
+    • last_login (TIMESTAMP) NULL
+    • login_attempts (INT) DEFAULT 0
+    • locked_until (TIMESTAMP) NULL
+    • created_at (TIMESTAMP) DEFAULT CURRENT_TIMESTAMP
+    • updated_at (TIMESTAMP) DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+
+3.10 activity_log Table
+Description: Logs user and system activities
+Fields:
+    • id (INT) PRIMARY KEY, AUTO_INCREMENT
+    • user_type (ENUM('customer', 'admin')) NOT NULL
+    • user_id (INT) 
+    • action (VARCHAR(100)) NOT NULL
+    • description (TEXT) 
+    • ip_address (VARCHAR(45)) 
+    • user_agent (TEXT) 
+    • created_at (TIMESTAMP) DEFAULT CURRENT_TIMESTAMP
+
+Relationships between tables:
+  • customers 1:N customer_addresses
+  • customers 1:N orders
+  • categories 1:N products
+  • products 1:N product_images
+  • products 1:N cart
+  • products 1:N order_items
+  • orders 1:N order_items
+
+4. ENTITY-RELATIONSHIP DIAGRAMS
+--------------------------------------------------------------------------------
+The following ER diagrams illustrate the relationships between the main entities in the system.
+
+4.1 Customer-Related Entities
+```
+┌───────────────┐       ┌───────────────┐
+│   customers   │       │  customer_    │
+├───────────────┤       │  addresses    │
+│ id            │       ├───────────────┤
+│ first_name    │       │ id            │
+│ last_name     │       │ customer_id   │◄─┐
+│ email         │       │ type          │  │
+│ phone         │       │ address_line_1│  │
+│ password      │◄──────┤ city          │  │
+│ status        │       │ state         │  │
+│ created_at    │       │ postal_code   │  │
+└───────────────┘       │ is_default    │  │
+        ▲               └───────────────┘  │
+        │                                  │
+        │               ┌───────────────┐  │
+        │               │     cart      │  │
+        │               ├───────────────┤  │
+        └───────────────┤ customer_id   │  │
+                        │ session_id    │  │
+                        │ product_id    │  │
+                        │ quantity      │  │
+                        └───────────────┘  │
+                                           │
+        ┌───────────────┐                  │
+        │    orders     │                  │
+        ├───────────────┤                  │
+        │ id            │                  │
+        │ order_number  │                  │
+        │ customer_id   │◄─────────────────┘
+        │ payment_status│
+        │ order_status  │
+        │ total_amount  │
+        └───────────────┘
+                ▲
+                │
+        ┌───────────────┐
+        │  order_items  │
+        ├───────────────┤
+        │ id            │
+        │ order_id      │
+        │ product_id    │
+        │ quantity      │
+        │ price         │
+        └───────────────┘
+```
+
+4.2 Product-Related Entities
+```
+┌───────────────┐       ┌───────────────┐
+│  categories   │       │   products    │
+├───────────────┤       ├───────────────┤
+│ id            │       │ id            │
+│ name          │       │ name          │
+│ slug          │       │ slug          │
+│ description   │◄──────┤ category_id   │
+│ parent_id     │       │ price         │
+│ status        │       │ sale_price    │
+└───────────────┘       │ stock_quantity│
+                        │ condition     │
+                        │ size          │
+                        │ color         │
+                        │ brand         │
+                        │ status        │
+                        └───────────────┘
+                                ▲
+                                │
+                        ┌───────────────┐
+                        │ product_images│
+                        ├───────────────┤
+                        │ id            │
+                        │ product_id    │
+                        │ image_path    │
+                        │ is_primary    │
+                        │ sort_order    │
+                        └───────────────┘
+```
+
+4.3 Admin-Related Entities
+```
+┌───────────────┐       ┌───────────────┐
+│  admin_users  │       │ activity_log  │
+├───────────────┤       ├───────────────┤
+│ id            │       │ id            │
+│ username      │       │ user_type     │
+│ email         │◄──────┤ user_id       │
+│ password      │       │ action        │
+│ full_name     │       │ description   │
+│ role          │       │ created_at    │
+│ status        │       └───────────────┘
+│ last_login    │
+└───────────────┘
+```
+
+5. FLOW CHARTS
+--------------------------------------------------------------------------------
+The following flow charts illustrate the main processes in the system.
+
+5.1 User Registration Process
+```
+┌─────────────┐     ┌─────────────┐     ┌─────────────┐
+│  User fills │     │  Validate   │     │  Create     │
+│ registration│────►│   form      │────►│  account    │
+│    form     │     │   data      │     │             │
+└─────────────┘     └──────┬──────┘     └──────┬──────┘
+                           │                   │
+                           │                   ▼
+                    ┌──────▼──────┐     ┌──────────────┐
+                    │   Display   │     │  Auto-login  │
+                    │ validation  │     │   user &     │
+                    │   errors    │     │ redirect to  │
+                    └─────────────┘     │   profile    │
+                                        └──────────────┘
+```
+
+5.2 Checkout Process
+```
+┌─────────────┐     ┌─────────────┐     ┌─────────────┐
+│  User views │     │  User       │     │  User fills │
+│  cart and   │────►│ proceeds to │────►│  shipping & │
+│  confirms   │     │  checkout   │     │  billing    │
+└─────────────┘     └─────────────┘     └──────┬──────┘
+                                               │
+┌─────────────┐     ┌─────────────┐     ┌──────▼──────┐
+│  Order      │     │  User       │     │  System     │
+│ confirmation│◄────│ reviews     │◄────│ validates   │
+│  page       │     │ order       │     │ information │
+└──────┬──────┘     └─────────────┘     └─────────────┘
+       │
+       ▼
+┌─────────────┐
+│  Order      │
+│ processing  │
+│ begins      │
+└─────────────┘
+```
+
+5.3 Admin Order Management Process
+```
+┌─────────────┐     ┌─────────────┐     ┌─────────────┐
+│  Admin      │     │  Admin      │     │  Admin      │
+│  views      │────►│ views order │────►│ updates     │
+│  orders     │     │  details    │     │ order status│
+└─────────────┘     └─────────────┘     └──────┬──────┘
+                                               │
+┌─────────────┐     ┌─────────────┐     ┌──────▼──────┐
+│  System     │     │  System     │     │  System     │
+│ notifies    │◄────│ logs        │◄────│ saves       │
+│ customer    │     │ activity    │     │ changes     │
+└─────────────┘     └─────────────┘     └─────────────┘
+```
+
+6. UI/UX OUTLINE
+--------------------------------------------------------------------------------
+The ShaiBha platform features a clean, elegant design with a focus on showcasing the pre-loved fashion items. The UI/UX is designed to be intuitive and responsive.
+
+6.1 Frontend Pages
+  • Home Page
+    - Hero section with featured collections
+    - Featured categories section
+    - Featured products section
+    - Sustainability message section
+  • Shop Page
+    - Product grid with filtering options
+    - Sorting controls
+    - Pagination
+  • Product Detail Page
+    - Product images gallery
+    - Product information (name, price, condition, etc.)
+    - Product description tabs
+    - Add to cart functionality
+    - Related products
+  • Cart Page
+    - Cart items list
+    - Quantity adjustment
+    - Cart summary
+    - Proceed to checkout button
+  • Checkout Page
+    - Shipping and billing information forms
+    - Order summary
+    - Payment method selection (COD)
+  • User Account Pages
+    - Profile information
+    - Order history
+    - Address management
+
+6.2 Admin Panel Pages
+  • Dashboard
+    - Key metrics and statistics
+    - Recent orders
+    - Low stock alerts
+  • Products Management
+    - Product listing with filtering and search
+    - Add/Edit product forms
+    - Product image management
+  • Orders Management
+    - Order listing with filtering and search
+    - Order details view
+    - Order status updates
+  • Customers Management
+    - Customer listing with filtering and search
+    - Customer details view
+    - Customer order history
+  • Reports
+    - Sales reports
+    - Inventory reports
+
+6.3 Design Elements
+  • Color Scheme:
+    - Primary: Black (#000000)
+    - Secondary: White (#FFFFFF)
+    - Accents: Shades of gray
+  • Typography:
+    - Primary Font: Inter (sans-serif)
+    - Display Font: Playfair Display (serif)
+  • UI Components:
+    - Glass morphism effects for cards
+    - Subtle animations for interactions
+    - Responsive grid layouts
+    - Consistent button styles
+
+7. IMPLEMENTATION PLAN
+--------------------------------------------------------------------------------
+The implementation of the ShaiBha platform will be divided into the following phases:
+
+7.1 Phase 1: Foundation
+  • Database schema setup
+  • Basic frontend structure and styling
+  • User authentication system
+  • Admin authentication system
+  • Core file structure and organization
+  • Basic security implementation
+
+7.2 Phase 2: Core E-commerce Functionality
+  • Product catalog and browsing
+  • Product detail pages
+  • Shopping cart functionality
+  • Checkout process
+  • Order management
+  • Basic search functionality
+
+7.3 Phase 3: Admin Functionality
+  • Admin dashboard
+  • Product management
+  • Order management
+  • Customer management
+  • Basic reporting
+  • Activity logging
+
+7.4 Phase 4: Enhancements
+  • User profiles and account management
+  • Advanced search and filtering
+  • Responsive design optimizations
+  • Performance optimizations
+  • SEO improvements
+  • Content pages (About, Contact, etc.)
+
+7.5 Phase 5: Future Expansions
+  • Payment gateway integration
+  • Email notifications
+  • Wishlist functionality
+  • Product reviews
+  • Advanced reporting
+  • Social media integration
+
+8. TECHNICAL SPECIFICATIONS
+--------------------------------------------------------------------------------
+
+8.1 File Structure
+  • /admin - Admin panel files
+  • /cart - Shopping cart functionality
+  • /config - Configuration files
+  • /css - Stylesheet files
+  • /customer - Customer account functionality
+  • /images - Image assets
+  • /includes - Reusable PHP components
+  • /js - JavaScript files
+  • /pages - Static pages
+  • /services - Service pages
+  • /shop - Shop functionality
+  • /uploads - User uploaded content
+
+8.2 Security Measures
+  • Password hashing using PHP's password_hash()
+  • CSRF token protection for forms
+  • Input sanitization and validation
+  • Prepared statements for database queries
+  • Session management and security
+  • XSS prevention through output escaping
+  • Secure cookie settings
+  • Rate limiting for login attempts
+
+8.3 Performance Considerations
+  • Image optimization
+  • Database indexing
+  • Caching strategies
+  • Lazy loading of images
+  • Code minification
+  • Efficient database queries
+  • Pagination for large data sets
+
+8.4 Responsive Design Approach
+  • Mobile-first design philosophy
+  • Fluid grid layouts
+  • Flexible images and media
+  • CSS media queries for breakpoints
+  • Touch-friendly interface elements
+  • Optimized navigation for mobile devices
+
+8.5 Browser Compatibility
+  • Chrome (latest 2 versions)
+  • Firefox (latest 2 versions)
+  • Safari (latest 2 versions)
+  • Edge (latest 2 versions)
+  • Opera (latest 2 versions)
+  • Mobile browsers (iOS Safari, Android Chrome)
+
+9. CONCLUSION
+--------------------------------------------------------------------------------
+The ShaiBha pre-loved fashion e-commerce platform is designed to provide a seamless shopping experience for users interested in sustainable fashion. With its comprehensive feature set, intuitive user interface, and robust admin capabilities, the platform aims to make pre-loved fashion accessible while promoting sustainability in the fashion industry.
+The platform's focus on quality curation, detailed condition descriptions, and transparent business practices will help build trust with customers and establish ShaiBha as a reputable marketplace for pre-loved fashion items.
+By implementing the platform in phases, we ensure a systematic approach to development, allowing for testing and refinement at each stage. The modular architecture also facilitates future expansions and integrations as the business grows.
+The success of ShaiBha will be measured not only by its technical performance but also by its contribution to sustainable fashion practices and customer satisfaction. By creating a platform that makes it easy and enjoyable to shop for pre-loved fashion, ShaiBha aims to change consumer behavior and promote a more sustainable approach to fashion consumption.

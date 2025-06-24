@@ -11,35 +11,44 @@ $current_page = basename($_SERVER['PHP_SELF']);
             </a>
         </div>
         
-        <div class="nav-menu" id="nav-menu">
-            <ul class="nav-list">
-                <li class="nav-item">
-                    <a href="/" class="nav-link <?php echo $current_page === 'index.php' ? 'active' : ''; ?>">Home</a>
-                </li>
-                <li class="nav-item dropdown">
-                    <a href="shop/" class="nav-link">Shop</a>
-                    <div class="dropdown-menu">
-                        <a href="shop/category.php?cat=dresses" class="dropdown-link">Dresses</a>
-                        <a href="shop/category.php?cat=tops" class="dropdown-link">Tops & Blouses</a>
-                        <a href="shop/category.php?cat=outerwear" class="dropdown-link">Outerwear</a>
-                        <a href="shop/category.php?cat=accessories" class="dropdown-link">Accessories</a>
-                    </div>
-                </li>
-                <li class="nav-item">
-                    <a href="about.php" class="nav-link <?php echo $current_page === 'about.php' ? 'active' : ''; ?>">About</a>
-                </li>
-                <li class="nav-item dropdown">
-                    <a href="#" class="nav-link">Services</a>
-                    <div class="dropdown-menu">
-                        <a href="services/size-guide.php" class="dropdown-link">Size Guide</a>
-                        <a href="services/care-instructions.php" class="dropdown-link">Care Instructions</a>
-                        <a href="services/styling-tips.php" class="dropdown-link">Styling Tips</a>
-                    </div>
-                </li>
-                <li class="nav-item">
-                    <a href="pages/contact.php" class="nav-link <?php echo $current_page === 'contact.php' ? 'active' : ''; ?>">Contact</a>
-                </li>
-            </ul>
+        <div class="nav-menu-container">
+            <div class="mobile-menu-toggle">
+                <button class="mobile-menu-btn" id="mobile-menu-btn">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+            <div class="nav-menu" id="nav-menu">
+                <ul class="nav-list">
+                    <li class="nav-item">
+                        <a href="/" class="nav-link <?php echo $current_page === 'index.php' ? 'active' : ''; ?>">Home</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a href="shop/" class="nav-link">Shop</a>
+                        <div class="dropdown-menu">
+                            <a href="shop/category.php?cat=dresses" class="dropdown-link">Dresses</a>
+                            <a href="shop/category.php?cat=tops" class="dropdown-link">Tops & Blouses</a>
+                            <a href="shop/category.php?cat=outerwear" class="dropdown-link">Outerwear</a>
+                            <a href="shop/category.php?cat=accessories" class="dropdown-link">Accessories</a>
+                        </div>
+                    </li>
+                    <li class="nav-item">
+                        <a href="about.php" class="nav-link <?php echo $current_page === 'about.php' ? 'active' : ''; ?>">About</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a href="#" class="nav-link">Services</a>
+                        <div class="dropdown-menu">
+                            <a href="services/size-guide.php" class="dropdown-link">Size Guide</a>
+                            <a href="services/care-instructions.php" class="dropdown-link">Care Instructions</a>
+                            <a href="services/styling-tips.php" class="dropdown-link">Styling Tips</a>
+                        </div>
+                    </li>
+                    <li class="nav-item">
+                        <a href="pages/contact.php" class="nav-link <?php echo $current_page === 'contact.php' ? 'active' : ''; ?>">Contact</a>
+                    </li>
+                </ul>
+            </div>
         </div>
         
         <div class="nav-actions">
@@ -82,7 +91,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
                     <span class="cart-count" id="cart-count">0</span>
                 </a>
             </div>
-            
+
             <div class="mobile-menu-toggle">
                 <button class="mobile-menu-btn" id="mobile-menu-btn">
                     <span></span>

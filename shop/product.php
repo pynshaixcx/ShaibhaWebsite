@@ -76,7 +76,7 @@ $related_products = array_filter($related_products, function($p) use ($product) 
                             <div class="stars">
                                 <span>★★★★★</span>
                             </div>
-                            <span class="rating-text">(Excellent Condition)</span>
+                            <span class="rating-text"><?php echo ucfirst(str_replace('_', ' ', $product['condition_rating'])); ?> Condition</span>
                         </div>
                     </div>
 
@@ -91,6 +91,39 @@ $related_products = array_filter($related_products, function($p) use ($product) 
                         <?php echo htmlspecialchars($product['short_description']); ?>
                     </p>
 
+                    <div class="product-details-info">
+                        <?php if ($product['size']): ?>
+                        <div class="detail-item">
+                            <span class="detail-label">Size</span>
+                            <span class="detail-value"><?php echo htmlspecialchars($product['size']); ?></span>
+                        </div>
+                        <?php endif; ?>
+                        
+                        <?php if ($product['color']): ?>
+                        <div class="detail-item">
+                            <span class="detail-label">Color</span>
+                            <span class="detail-value"><?php echo htmlspecialchars($product['color']); ?></span>
+                        </div>
+                        <?php endif; ?>
+                        
+                        <?php if ($product['material']): ?>
+                        <div class="detail-item">
+                            <span class="detail-label">Material</span>
+                            <span class="detail-value"><?php echo htmlspecialchars($product['material']); ?></span>
+                        </div>
+                        <?php endif; ?>
+                        
+                        <div class="detail-item">
+                            <span class="detail-label">Condition</span>
+                            <span class="detail-value"><?php echo ucfirst(str_replace('_', ' ', $product['condition_rating'])); ?></span>
+                        </div>
+                        
+                        <div class="detail-item">
+                            <span class="detail-label">Availability</span>
+                            <span class="detail-value"><?php echo $product['stock_quantity'] > 0 ? 'In Stock' : 'Out of Stock'; ?></span>
+                        </div>
+                    </div>
+
                     <div class="product-actions">
                         <div class="quantity-selector">
                             <button type="button" onclick="decreaseQuantity()">-</button>
@@ -100,10 +133,6 @@ $related_products = array_filter($related_products, function($p) use ($product) 
                         <button class="btn btn-primary add-to-cart-btn" onclick="addToCart(<?php echo $product['id']; ?>)">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
                             Add to Cart
-                        </button>
-                        <button class="btn btn-secondary wishlist-btn">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
-                            Add to Wishlist
                         </button>
                     </div>
 
@@ -196,7 +225,7 @@ $related_products = array_filter($related_products, function($p) use ($product) 
                         $related_image = "../images/products/product_" . rand(1, 3) . ".jpg";
                         $related_price = $related['sale_price'] ?: $related['price'];
                         ?>
-                        <div class="product-card">
+                        <div class="product-card" data-product-id="<?php echo $related['id']; ?>">
                             <div class="product-image">
                                 <img src="<?php echo $related_image; ?>" alt="<?php echo htmlspecialchars($related['name']); ?>">
                                 <div class="product-overlay">
@@ -210,12 +239,16 @@ $related_products = array_filter($related_products, function($p) use ($product) 
                                     </a>
                                 </h3>
                                 <p class="product-brand"><?php echo htmlspecialchars($related['brand']); ?></p>
+                                <p class="product-condition"><?php echo ucfirst(str_replace('_', ' ', $related['condition_rating'])); ?> Condition</p>
                                 <div class="product-price">
                                     <span class="current-price"><?php echo formatPrice($related_price); ?></span>
                                     <?php if ($related['sale_price']): ?>
                                         <span class="original-price"><?php echo formatPrice($related['price']); ?></span>
                                     <?php endif; ?>
                                 </div>
+                                <button class="btn btn-primary add-to-cart-btn" onclick="addToCart(<?php echo $related['id']; ?>)">
+                                    Add to Cart
+                                </button>
                             </div>
                         </div>
                     <?php endforeach; ?>
@@ -295,7 +328,30 @@ function addToCart(productId) {
             }
             
             // Show success message
-            alert('Product added to cart!');
+            const notification = document.createElement('div');
+            notification.className = 'notification notification-success';
+            notification.textContent = 'Product added to cart!';
+            notification.style.position = 'fixed';
+            notification.style.top = '100px';
+            notification.style.right = '20px';
+            notification.style.padding = '12px 20px';
+            notification.style.background = '#10b981';
+            notification.style.color = 'white';
+            notification.style.borderRadius = '8px';
+            notification.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+            notification.style.zIndex = '9999';
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                notification.style.transform = 'translateX(20px)';
+                notification.style.transition = 'opacity 0.3s, transform 0.3s';
+                
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 300);
+            }, 3000);
         } else {
             alert(data.message || 'Error adding product to cart');
         }
