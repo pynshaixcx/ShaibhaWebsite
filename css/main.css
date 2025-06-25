@@ -1,3 +1,73 @@
+/* Account Dropdown */
+.account-dropdown {
+    position: relative;
+    margin-left: 1rem;
+}
+
+.account-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: none;
+    border: none;
+    color: var(--color-black);
+    font-size: 1rem;
+    cursor: pointer;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
+.account-btn:hover {
+    background-color: var(--color-gray-100);
+}
+
+.account-btn i {
+    font-size: 1.2rem;
+}
+
+.account-dropdown-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    min-width: 200px;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(10px);
+    transition: all 0.3s ease;
+    z-index: 1000;
+    padding: 0.5rem 0;
+}
+
+.account-dropdown:hover .account-dropdown-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.account-dropdown-menu .dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1.25rem;
+    color: var(--color-gray-800);
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.account-dropdown-menu .dropdown-item i {
+    width: 20px;
+    text-align: center;
+}
+
+.account-dropdown-menu .dropdown-item:hover {
+    background-color: var(--color-gray-50);
+    color: var(--color-primary);
+}
+
 /* Reset and Base Styles */
 * {
     margin: 0;

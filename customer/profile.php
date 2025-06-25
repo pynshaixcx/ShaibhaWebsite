@@ -19,6 +19,12 @@ if (!$customer) {
 $error = '';
 $success = '';
 
+// Check for success message in session
+if (isset($_SESSION['success'])) {
+    $success = $_SESSION['success'];
+    unset($_SESSION['success']); // Clear the message after displaying it
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Validate CSRF token
     if (!verifyCSRFToken($_POST['csrf_token'] ?? '')) {
@@ -76,8 +82,15 @@ include_once '../includes/header.php';
     <section class="profile-header">
         <div class="container">
             <div class="profile-header-content">
-                <h1 class="page-title">My Profile</h1>
-                <p class="page-subtitle">Manage your account information and preferences</p>
+                <div class="profile-header-row">
+                    <div>
+                        <h1 class="page-title">My Profile</h1>
+                        <p class="page-subtitle">Manage your account information and preferences</p>
+                    </div>
+                    <a href="logout.php" class="btn btn-outline">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </a>
+                </div>
             </div>
         </div>
     </section>
@@ -212,6 +225,51 @@ include_once '../includes/header.php';
 
 <style>
 /* Profile Page Styles */
+.profile-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.profile-header-row .btn-outline {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 1.2rem;
+    border: 1px solid var(--color-primary);
+    color: var(--color-primary);
+    border-radius: 4px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+.profile-header-row .btn-outline:hover {
+    background-color: var(--color-primary);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.profile-header-row .btn-outline i {
+    font-size: 0.9em;
+}
+
+@media (max-width: 576px) {
+    .profile-header-row {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .profile-header-row .btn-outline {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
 .profile-header {
     padding: var(--spacing-2xl) 0;
     background: linear-gradient(135deg, var(--color-gray-100) 0%, var(--color-white) 100%);

@@ -58,12 +58,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 mergeGuestCartToCustomer($session_id, $customer_id);
                 
                 // Regenerate session for security
-                regenerateSession();
+                session_regenerate_id(true);
                 
-                $success = 'Account created successfully! Welcome to ShaiBha.';
+                // Set success message in session
+                $_SESSION['success'] = 'Account created successfully! Welcome to ShaiBha.';
                 
-                // Redirect after a short delay
-                header("refresh:2;url=profile.php");
+                // Redirect immediately
+                header("Location: profile.php");
+                exit();
             } else {
                 $error = 'Sorry, there was an error creating your account. Please try again.';
             }

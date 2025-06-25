@@ -32,18 +32,22 @@
 
             <div class="header-actions">
                 <button class="search-btn" aria-label="Search"><i class="fas fa-search"></i></button>
-                <?php if (isset($_SESSION['customer_id'])): ?>
-                    <a href="customer/profile.php" class="user-link" aria-label="My Account"><i class="fas fa-user"></i></a>
-                <?php else: ?>
-                    <a href="customer/login.php" class="user-link" aria-label="My Account"><i class="fas fa-user"></i></a>
-                    <a href="customer/login.php" class="user-link">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
-                            <polyline points="10,17 15,12 10,7"></polyline>
-                            <line x1="15" y1="12" x2="3" y2="12"></line>
-                        </svg>
-                    </a>
-                <?php endif; ?>
+                <div class="account-dropdown">
+                    <button class="account-btn" aria-label="Account">
+                        <i class="fas fa-user-circle"></i>
+                        <span class="account-text"><?php echo isset($_SESSION['customer_id']) ? 'My Account' : 'Login / Register'; ?></span>
+                    </button>
+                    <div class="account-dropdown-menu">
+                        <?php if (isset($_SESSION['customer_id'])): ?>
+                            <a href="customer/profile.php" class="dropdown-item"><i class="fas fa-user"></i> My Profile</a>
+                            <a href="customer/orders.php" class="dropdown-item"><i class="fas fa-shopping-bag"></i> My Orders</a>
+                            <a href="customer/logout.php" class="dropdown-item"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                        <?php else: ?>
+                            <a href="customer/login.php" class="dropdown-item"><i class="fas fa-sign-in-alt"></i> Login</a>
+                            <a href="customer/register.php" class="dropdown-item"><i class="fas fa-user-plus"></i> Register</a>
+                        <?php endif; ?>
+                    </div>
+                </div>
             </div>
             
             <div class="cart-toggle">

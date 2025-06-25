@@ -47,6 +47,46 @@ function verifyPassword($password, $hash) {
     return password_verify($password, $hash);
 }
 
+// Merge guest cart to customer
+function mergeGuestCartToCustomer($session_id, $customer_id) {
+    try {
+        // Get guest cart items
+        $guest_cart = fetchAll("SELECT * FROM cart WHERE session_id = ? AND customer_id IS NULL", [$session_id]);
+        
+        if (!empty($guest_cart)) {
+            foreach ($guest_cart as $item) {
+                // Check if customer already has this product in cart
+                $existing = fetchOne(
+                    "SELECT id, quantity FROM cart WHERE customer_id = ? AND product_id = ? AND session_id IS NULL",
+                    [$customer_id, $item['product_id']]
+                );
+                
+                if ($existing) {
+                    // Update quantity if product exists
+                    executeQuery(
+                        "UPDATE cart SET quantity = quantity + ? WHERE id = ?",
+                        [$item['quantity'], $existing['id']]
+                    );
+                    
+                    // Remove the guest cart item
+                    executeQuery("DELETE FROM cart WHERE id = ?", [$item['id']]);
+                } else {
+                    // Assign cart item to customer
+                    executeQuery(
+                        "UPDATE cart SET customer_id = ?, session_id = NULL WHERE id = ?",
+                        [$customer_id, $item['id']]
+                    );
+                }
+            }
+        }
+        return true;
+    } catch (Exception $e) {
+        // Log error but don't break the login/registration flow
+        error_log("Error merging guest cart: " . $e->getMessage());
+        return false;
+    }
+}
+
 // Upload image
 function uploadImage($file, $directory, $max_size = MAX_IMAGE_SIZE) {
     if (!isset($file['tmp_name']) || !is_uploaded_file($file['tmp_name'])) {

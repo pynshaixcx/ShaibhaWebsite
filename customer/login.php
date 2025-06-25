@@ -40,7 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             mergeGuestCartToCustomer($session_id, $customer['id']);
             
             // Regenerate session for security
-            regenerateSession();
+            session_regenerate_id(true);
             
             // Redirect to intended page or profile
             $redirect_url = $_GET['redirect'] ?? 'profile.php';
