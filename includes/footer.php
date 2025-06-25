@@ -54,7 +54,6 @@
                         <ul class="footer-links">
                             <li><a href="/pages/faq.php" class="footer-link">FAQ</a></li>
                             <li><a href="/pages/contact.php" class="footer-link">Contact Us</a></li>
-                            <li><a href="/pages/testimonials.php" class="footer-link">Testimonials</a></li>
                             <li><a href="/pages/privacy-policy.php" class="footer-link">Privacy Policy</a></li>
                             <li><a href="/pages/terms-conditions.php" class="footer-link">Terms & Conditions</a></li>
                         </ul>
