@@ -75,6 +75,7 @@
 
     <!-- Scripts -->
     <script src="/js/main.js"></script>
+    <script src="/js/mobile-nav.js"></script>
     <?php if (isset($additional_scripts)): ?>
         <?php foreach ($additional_scripts as $script): ?>
             <script src="<?php echo $script; ?>"></script>

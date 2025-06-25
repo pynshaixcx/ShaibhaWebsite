@@ -203,19 +203,33 @@ h1, h2, h3, h4, h5, h6 {
 .dropdown-menu {
     position: absolute;
     top: 100%;
-    left: 0;
+    left: 50%;
+    transform: translateX(-50%) translateY(10px);
     background-color: var(--color-white);
     border: 1px solid var(--color-gray-200);
     border-radius: var(--border-radius-md);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     list-style: none;
     padding: var(--spacing-sm) 0;
-    min-width: 180px;
+    min-width: 200px;
     z-index: 1001;
     opacity: 0;
     visibility: hidden;
-    transform: translateY(10px);
     transition: opacity var(--transition-fast), transform var(--transition-fast), visibility var(--transition-fast);
+}
+
+.nav-item.dropdown {
+    position: relative;
+}
+
+.nav-item.dropdown > .dropdown-menu {
+    margin-top: 10px;
+}
+
+.nav-item.dropdown:hover > .dropdown-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(0);
 }
 
 .nav-item.has-dropdown:hover .dropdown-menu,
@@ -269,20 +283,24 @@ h1, h2, h3, h4, h5, h6 {
 
 .mobile-menu-toggle {
     display: none;
+    position: relative;
+    z-index: 1002;
+    margin-left: 15px;
 }
 
 .mobile-menu-btn {
     position: relative;
-    width: 24px;
-    height: 18px;
+    width: 30px;
+    height: 24px;
     background: transparent;
     border: none;
     cursor: pointer;
     padding: 0;
-    z-index: 1001;
+    margin: 0;
+    outline: none;
 }
 
-.mobile-menu-btn span {
+.mobile-menu-btn .menu-icon {
     display: block;
     position: absolute;
     height: 2px;
@@ -292,34 +310,173 @@ h1, h2, h3, h4, h5, h6 {
     opacity: 1;
     left: 0;
     transform: rotate(0deg);
-    transition: .25s ease-in-out;
+    transition: all 0.3s ease-in-out;
 }
 
-.mobile-menu-btn span:nth-child(1) {
-    top: 0px;
-}
-
-.mobile-menu-btn span:nth-child(2) {
+.mobile-menu-btn .menu-icon:nth-child(2) {
     top: 8px;
 }
 
-.mobile-menu-btn span:nth-child(3) {
+.mobile-menu-btn .menu-icon:nth-child(3) {
     top: 16px;
 }
 
-.mobile-menu-btn.active span:nth-child(1) {
-    top: 8px;
-    transform: rotate(135deg);
+.mobile-menu-btn.active .menu-icon:nth-child(1) {
+    transform: rotate(45deg) translate(5px, 5px);
+    top: 0;
 }
 
-.mobile-menu-btn.active span:nth-child(2) {
+.mobile-menu-btn.active .menu-icon:nth-child(2) {
     opacity: 0;
-    left: -60px;
 }
 
-.mobile-menu-btn.active span:nth-child(3) {
-    top: 8px;
-    transform: rotate(-135deg);
+.mobile-menu-btn.active .menu-icon:nth-child(3) {
+    transform: rotate(-45deg) translate(5px, -5px);
+    top: 16px;
+}
+
+/* New Mobile Navigation Overlay */
+/* -- New Mobile Navigation System -- */
+
+/* Hamburger Button */
+.mobile-menu-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 10px;
+    z-index: 1001;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    width: 30px;
+    height: 24px;
+}
+
+.menu-icon-line {
+    width: 100%;
+    height: 2px;
+    background-color: #333;
+    transition: all 0.3s ease;
+}
+
+/* Full-Screen Overlay */
+.mobile-nav-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.98);
+    backdrop-filter: blur(5px);
+    z-index: 1000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-20px);
+    transition: opacity 0.4s ease, visibility 0.4s, transform 0.4s ease;
+}
+
+.mobile-nav-overlay.active {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+/* Close Button */
+.mobile-nav-header {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    font-size: 2.5rem;
+    font-weight: 300;
+    color: #333;
+    cursor: pointer;
+}
+
+/* Navigation List */
+.mobile-nav-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    text-align: center;
+}
+
+.mobile-nav-item {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+/* Staggered animation for list items */
+.mobile-nav-overlay.active .mobile-nav-item {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.mobile-nav-overlay.active .mobile-nav-item:nth-child(1) { transition-delay: 0.2s; }
+.mobile-nav-overlay.active .mobile-nav-item:nth-child(2) { transition-delay: 0.25s; }
+.mobile-nav-overlay.active .mobile-nav-item:nth-child(3) { transition-delay: 0.3s; }
+.mobile-nav-overlay.active .mobile-nav-item:nth-child(4) { transition-delay: 0.35s; }
+.mobile-nav-overlay.active .mobile-nav-item:nth-child(5) { transition-delay: 0.4s; }
+
+/* Navigation Links */
+.mobile-nav-link {
+    display: block;
+    padding: 15px 0;
+    font-size: 2rem; /* Larger font for impact */
+    font-weight: 500;
+    color: #222;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.mobile-nav-link:hover {
+    color: var(--color-primary);
+}
+
+/* Dropdown Menu */
+.mobile-dropdown-menu {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.5s ease-in-out;
+    background-color: rgba(0,0,0,0.02);
+    border-radius: 8px;
+    margin: 5px 0 15px 0;
+}
+
+.mobile-nav-item.dropdown.active > .mobile-dropdown-menu {
+    max-height: 300px; /* Adjust as needed */
+}
+
+.mobile-dropdown-link {
+    display: block;
+    padding: 12px 20px;
+    font-size: 1.2rem;
+    font-weight: 400;
+    color: #444;
+    text-decoration: none;
+    transition: color 0.3s ease, background-color 0.3s ease;
+}
+
+.mobile-dropdown-link:hover {
+    color: var(--color-primary);
+    background-color: rgba(0,0,0,0.05);
+}
+
+/* Show mobile menu toggle on mobile */
+@media (max-width: 991px) {
+    .mobile-menu-toggle {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
 }
 
 .search-btn,
@@ -797,6 +954,10 @@ img {
 .sustainability-section {
     padding: var(--spacing-3xl) 0;
     background: linear-gradient(135deg, var(--color-gray-100) 0%, var(--color-white) 100%);
+}
+
+body.no-scroll {
+    overflow: hidden;
 }
 
 .sustainability-content {

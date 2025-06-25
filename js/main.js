@@ -7,8 +7,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Search functionality
     initializeSearch();
     
-    // Mobile menu
-    initializeMobileMenu();
+    // Mobile navigation is handled in mobile-nav.js
     
     // Typography animations
     initializeAnimations();
@@ -106,59 +105,74 @@ function initializeSearch() {
 
 // Mobile menu functionality
 function initializeMobileMenu() {
-    const navMenu = document.getElementById('nav-menu');
+    const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+    const closeMenuBtn = document.getElementById('close-menu-btn');
+    const mobileNavOverlay = document.getElementById('mobile-nav-overlay');
     const body = document.body;
 
-    // Use event delegation for mobile menu button
-    document.body.addEventListener('click', function(e) {
-        // Check if the click is on the mobile menu button or its child elements
-        if (e.target.closest('#mobile-menu-btn')) {
-            console.log("Mobile menu button clicked (via delegation)");
-            navMenu.classList.toggle('active');
-            e.target.closest('#mobile-menu-btn').classList.toggle('active');
-            body.classList.toggle('menu-open');
-        }
-    });
+    function openMenu() {
+        if (!mobileNavOverlay) return;
+        mobileNavOverlay.classList.add('active');
+        mobileMenuBtn.classList.add('active'); // For icon animation
+        body.style.overflow = 'hidden';
+    }
 
-    // Handle dropdowns within the mobile menu
-    const dropdownToggles = document.querySelectorAll('.dropdown-toggle');
-    dropdownToggles.forEach(toggle => {
-        toggle.addEventListener('click', function(e) {
-            // Only activate for mobile
-            if (window.innerWidth < 992) {
-                e.preventDefault();
-                const dropdownMenu = this.nextElementSibling;
-                
-                if (dropdownMenu && dropdownMenu.classList.contains('dropdown-menu')) {
-                    // Toggle the active class on the dropdown menu
-                    dropdownMenu.classList.toggle('active');
-                    // Toggle active class on the parent nav-item for styling
-                    this.parentElement.classList.toggle('active');
+    function closeMenu() {
+        if (!mobileNavOverlay) return;
+        mobileNavOverlay.classList.remove('active');
+        mobileMenuBtn.classList.remove('active');
+        body.style.overflow = '';
+    }
+
+    if (mobileMenuBtn) {
+        mobileMenuBtn.addEventListener('click', openMenu);
+    }
+
+    if (closeMenuBtn) {
+        closeMenuBtn.addEventListener('click', closeMenu);
+    }
+
+    // Accordion dropdown logic for the new mobile menu
+    const mobileDropdownToggles = document.querySelectorAll('.mobile-nav-item.dropdown > .mobile-nav-link');
+    mobileDropdownToggles.forEach(toggle => {
+        toggle.addEventListener('click', (e) => {
+            e.preventDefault();
+            const parentItem = toggle.parentElement;
+
+            // Close all other dropdowns
+            document.querySelectorAll('.mobile-nav-item.dropdown').forEach(item => {
+                if (item !== parentItem) {
+                    item.classList.remove('active');
                 }
-            }
+            });
+
+            // Toggle the clicked dropdown
+            parentItem.classList.toggle('active');
         });
     });
-
-    // Close menu when a link is clicked
-    navMenu.addEventListener('click', function(e) {
-        // Check if the clicked element is a link, but not a dropdown toggle
-        if (e.target.tagName === 'A' && !e.target.classList.contains('dropdown-toggle')) {
-            navMenu.classList.remove('active');
-            document.querySelector('#mobile-menu-btn').classList.remove('active');
-            body.classList.remove('menu-open');
-        }
-    });
     
-    // Close menu when clicking outside
-    document.addEventListener('click', function(e) {
-        if (navMenu.classList.contains('active') && 
-            !navMenu.contains(e.target) && 
-            !document.querySelector('#mobile-menu-btn').contains(e.target)) {
+    // Handle window resize
+    function handleResize() {
+        if (window.innerWidth >= 992) {
+            // Close mobile menu when resizing to desktop
             navMenu.classList.remove('active');
-            document.querySelector('#mobile-menu-btn').classList.remove('active');
+            if (mobileMenuBtn) {
+                mobileMenuBtn.classList.remove('active');
+                mobileMenuBtn.setAttribute('aria-expanded', 'false');
+            }
             body.classList.remove('menu-open');
+            navMenu.removeAttribute('style');
+            navMenu.setAttribute('aria-hidden', 'false');
+            
+            // Close all dropdowns
+            document.querySelectorAll('.dropdown-menu, .dropdown-toggle').forEach(el => {
+                el.classList.remove('active');
+            });
         }
-    });
+    }
+    
+    // Add resize event listener
+    window.addEventListener('resize', handleResize);
 }
 
 // Typography animations
