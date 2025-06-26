@@ -1,5 +1,5 @@
 <?php
-$page_title = "Product Management";
+$page_title = "Products";
 require_once '../../includes/functions.php';
 
 // Check if admin is logged in
@@ -7,539 +7,227 @@ if (!isAdminLoggedIn()) {
     redirect('../login.php');
 }
 
-// Get products with pagination
-$page = max(1, intval($_GET['page'] ?? 1));
-$products_per_page = 20;
-$offset = ($page - 1) * $products_per_page;
-
-// Get sorting parameters
-$sort = $_GET['sort'] ?? 'created_at';
-$order = $_GET['order'] ?? 'desc';
-
-// Get filter parameters
-$category_id = $_GET['category'] ?? '';
-$status = $_GET['status'] ?? '';
-$search = $_GET['search'] ?? '';
-
-// Build query
-$sql = "SELECT p.*, c.name as category_name FROM products p 
+// Get all products
+$products = fetchAll("
+    SELECT p.*, c.name as category_name 
+    FROM products p
         LEFT JOIN categories c ON p.category_id = c.id 
-        WHERE 1=1";
-$params = [];
+    ORDER BY p.created_at DESC
+");
 
-if ($category_id) {
-    $sql .= " AND p.category_id = ?";
-    $params[] = $category_id;
-}
-
-if ($status) {
-    $sql .= " AND p.status = ?";
-    $params[] = $status;
-}
-
+// Handle search
+$search = sanitizeInput($_GET['search'] ?? '');
 if ($search) {
-    $sql .= " AND (p.name LIKE ? OR p.sku LIKE ? OR p.brand LIKE ?)";
-    $search_term = "%{$search}%";
-    $params[] = $search_term;
-    $params[] = $search_term;
-    $params[] = $search_term;
+    $products = fetchAll("
+        SELECT p.*, c.name as category_name 
+        FROM products p
+        LEFT JOIN categories c ON p.category_id = c.id
+        WHERE p.name LIKE ? OR p.sku LIKE ? OR c.name LIKE ?
+        ORDER BY p.created_at DESC
+    ", ["%$search%", "%$search%", "%$search%"]);
 }
 
-// Count total products for pagination
-$count_sql = str_replace("SELECT p.*, c.name as category_name", "SELECT COUNT(*) as total", $sql);
-$total_products = fetchOne($count_sql, $params)['total'];
-$total_pages = ceil($total_products / $products_per_page);
-
-// Add sorting and pagination
-$valid_sort_columns = ['name', 'price', 'stock_quantity', 'status', 'created_at'];
-$sort = in_array($sort, $valid_sort_columns) ? $sort : 'created_at';
-$order = strtoupper($order) === 'ASC' ? 'ASC' : 'DESC';
-
-$sql .= " ORDER BY p.{$sort} {$order}";
-$sql .= " LIMIT ? OFFSET ?";
-$params[] = $products_per_page;
-$params[] = $offset;
-
-$products = fetchAll($sql, $params);
+// Handle category filter
+$category_filter = sanitizeInput($_GET['category'] ?? '');
+if ($category_filter) {
+    $products = fetchAll("
+        SELECT p.*, c.name as category_name 
+        FROM products p
+        LEFT JOIN categories c ON p.category_id = c.id
+        WHERE c.id = ?
+        ORDER BY p.created_at DESC
+    ", [$category_filter]);
+}
 
 // Get categories for filter
-$categories = fetchAll("SELECT id, name FROM categories WHERE status = 'active' ORDER BY name");
+$categories = fetchAll("SELECT * FROM categories ORDER BY name");
 ?>
-
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo $page_title; ?> - ShaiBha Admin</title>
-    
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
-    <!-- Styles -->
-    <link rel="stylesheet" href="../../css/admin.css">
-    
-    <!-- Favicon -->
-    <link rel="icon" type="image/svg+xml" href="../../images/favicon.svg">
-    
-    <style>
-        .product-image-cell {
-            width: 80px;
+    <meta charset="utf-8"/>
+    <link crossorigin="" href="https://fonts.gstatic.com/" rel="preconnect"/>
+    <link as="style" href="https://fonts.googleapis.com/css2?display=swap&family=Inter%3Awght%40400%3B500%3B600%3B700%3B900&family=Noto+Sans%3Awght%40400%3B500%3B700%3B900" onload="this.rel='stylesheet'" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet"/>
+    <title>ShaiBha Admin - Products</title>
+    <link href="data:image/x-icon;base64," rel="icon" type="image/x-icon"/>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <style type="text/tailwindcss">
+        :root {
+            --background-primary: rgba(20, 20, 20, 0.7);
+            --background-secondary: rgba(48, 48, 48, 0.7);
+            --border-color: rgba(48, 48, 48, 0.9);
+            --text-primary: #ffffff;
+            --text-secondary: #ababab;
+            --blur-intensity: 10px;
+            --sidebar-glow: 0 0 20px 5px rgba(128, 128, 255, 0.2);
         }
-        
-        .product-thumbnail {
-            width: 60px;
-            height: 60px;
-            object-fit: cover;
-            border-radius: 4px;
+        .frosted-glass {
+            backdrop-filter: blur(var(--blur-intensity));
+            -webkit-backdrop-filter: blur(var(--blur-intensity));
         }
-        
-        .product-name {
-            display: flex;
-            flex-direction: column;
+        .sidebar-item:hover, .sidebar-item.active {
+            background-color: var(--background-secondary) !important;
+            border-radius: 0.5rem;
         }
-        
-        .product-name a {
-            color: var(--color-black);
-            font-weight: 600;
-            text-decoration: none;
-            margin-bottom: 4px;
+        .icon-button:hover {
+            background-color: rgba(75, 75, 75, 0.7) !important;
         }
-        
-        .product-name a:hover {
-            text-decoration: underline;
+        .sidebar-glow-effect {
+            box-shadow: var(--sidebar-glow);
         }
-        
-        .product-sku {
-            font-size: 0.8rem;
-            color: var(--color-gray-500);
-        }
-        
-        .sale-price {
-            font-weight: 700;
-            color: var(--color-black);
-        }
-        
-        .original-price {
-            text-decoration: line-through;
-            color: var(--color-gray-500);
-            font-size: 0.9rem;
-            margin-left: 5px;
-        }
-        
-        .stock-badge {
-            display: inline-block;
-            padding: 2px 8px;
-            border-radius: 12px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            background: #dcfce7;
-            color: #166534;
-        }
-        
-        .stock-badge.low-stock {
-            background: #fef3c7;
-            color: #92400e;
-        }
-        
+        /* Product-specific styles */
         .status-badge {
-            display: inline-block;
-            padding: 2px 8px;
-            border-radius: 12px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            text-transform: uppercase;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
         }
-        
-        .status-active {
-            background: #dcfce7;
-            color: green;
+        .status-in-stock {
+            background-color: rgba(74, 222, 128, 0.1);
+            color: #4ade80;
         }
-        
-        .status-inactive {
-            background: #fee2e2;
-            color: #dc2626;
+        .status-low-stock {
+            background-color: rgba(250, 204, 21, 0.1);
+            color: #fac00a;
         }
-        
-        .status-sold {
-            background: #dbeafe;
-            color: #1e40af;
-        }
-        
-        .table-actions {
-            display: flex;
-            gap: 10px;
-        }
-        
-        .action-btn {
-            padding: 5px;
-            border-radius: 4px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .edit-btn {
-            background-color: #e9ecef;
-            color: #495057;
-        }
-        
-        .edit-btn:hover {
-            background-color: #a7f3d0;
-        }
-        
-        .view-btn {
-            background-color: #dbeafe;
-            color: #1e40af;
-        }
-        
-        .view-btn:hover {
-            background-color: #bfdbfe;
-        }
-        
-        .delete-btn {
-            background-color: #fff5f5;
-            color: #e53e3e;
-        }
-        
-        .delete-btn:hover {
-            background-color: #fecaca;
-        }
-        
-        .filters-section {
-            background: var(--color-white);
-            border-radius: var(--border-radius-lg);
-            padding: var(--spacing-lg);
-            margin-bottom: var(--spacing-lg);
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-        }
-        
-        .filters-form {
-            display: flex;
-            flex-wrap: wrap;
-            gap: var(--spacing-md);
-            align-items: flex-end;
-        }
-        
-        .filter-group {
-            flex: 1;
-            min-width: 200px;
-        }
-        
-        .filter-group label {
-            display: block;
-            margin-bottom: var(--spacing-xs);
-            font-weight: 600;
-            color: var(--color-gray-700);
-        }
-        
-        .filter-group input,
-        .filter-group select {
-            width: 100%;
-            padding: var(--spacing-sm);
-            border: 1px solid var(--color-gray-300);
-            border-radius: var(--border-radius-md);
-            background: var(--color-white);
-        }
-        
-        .filter-actions {
-            display: flex;
-            gap: var(--spacing-sm);
-        }
-        
-        .table-section {
-            background: var(--color-white);
-            border-radius: var(--border-radius-lg);
-            padding: var(--spacing-lg);
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-        }
-        
-        .table-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: var(--spacing-lg);
-        }
-        
-        .table-header h2 {
-            font-size: 1.2rem;
-            color: var(--color-black);
-        }
-        
-        .table-container {
-            overflow-x: auto;
-        }
-        
-        .data-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        
-        .data-table th, .data-table td {
-            padding: 12px 15px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-        }
-        
-        .data-table th {
-            background-color: #f8f9fa;
-            font-weight: 600;
-        }
-        
-        .data-table tr:hover {
-            background-color: #f1f1f1;
-        }
-        
-        .pagination {
-            display: flex;
-            gap: 5px;
-            margin-top: 20px;
-        }
-        
-        .pagination a, .pagination span {
-            padding: 8px 12px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-        }
-        
-        .pagination a:hover {
-            background-color: #f8f9fa;
-        }
-        
-        .pagination .active {
-            background-color: #000;
-            color: white;
-            border-color: #000;
+        .status-out-of-stock {
+            background-color: rgba(248, 113, 113, 0.1);
+            color: #f87171;
         }
     </style>
 </head>
-<body>
-    <div class="admin-layout">
-        <!-- Sidebar -->
-        <aside class="admin-sidebar">
-            <div class="sidebar-header">
-                <h1 class="sidebar-logo">ShaiBha</h1>
-                <p class="sidebar-subtitle">Admin Panel</p>
+<body class="bg-gradient-to-br from-black via-slate-900 to-black">
+    <div class="relative flex size-full min-h-screen flex-col bg-cover bg-center bg-fixed" style='font-family: Inter, "Noto Sans", sans-serif;'>
+        <div class="relative flex size-full min-h-screen flex-col dark group/design-root">
+            <div class="layout-container flex h-full grow flex-col">
+                <!-- Header -->
+                <header class="frosted-glass sticky top-0 z-50 flex items-center justify-between whitespace-nowrap border-b border-solid border-[var(--border-color)] bg-[var(--background-primary)] px-6 py-4 md:px-10">
+                    <div class="flex items-center gap-4 text-[var(--text-primary)]">
+                        <h2 class="text-[var(--text-primary)] text-xl font-semibold leading-tight tracking-[-0.015em]">
+                            <span class="font-bold">ShaiBha</span> Admin Panel
+                        </h2>
+                    </div>
+                    <div class="flex items-center gap-3">
             </div>
-            
-            <nav class="sidebar-nav">
-                <ul class="nav-list">
-                    <li class="nav-item">
-                        <a href="../index.php" class="nav-link">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-                                <polyline points="9,22 9,12 15,12 15,22"></polyline>
-                            </svg>
-                            <span>Dashboard</span>
+                </header>
+
+                <div class="flex flex-1">
+                    <!-- Sidebar -->
+                    <aside class="frosted-glass sticky top-[73px] h-[calc(100vh-73px)] w-64 flex-col justify-between border-r border-solid border-[var(--border-color)] bg-[var(--background-primary)] p-4 hidden md:flex sidebar-glow-effect rounded-r-xl">
+                        <nav class="flex flex-col gap-2">
+                            <a class="sidebar-item flex items-center gap-3 px-3 py-2.5 text-[var(--text-primary)] transition-colors duration-200" href="../index.php">
+                                <span class="material-icons-outlined text-xl">dashboard</span>
+                                <p class="text-sm font-medium">Dashboard</p>
                         </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="index.php" class="nav-link active">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
-                                <line x1="3" y1="6" x2="21" y2="6"></line>
-                                <path d="M16 10a4 4 0 0 1-8 0"></path>
-                            </svg>
-                            <span>Products</span>
+                            <a class="sidebar-item flex items-center gap-3 px-3 py-2.5 text-[var(--text-primary)] transition-colors duration-200" href="../orders/index.php">
+                                <span class="material-icons-outlined text-xl">list_alt</span>
+                                <p class="text-sm font-medium">Orders</p>
+                            </a>
+                            <a class="sidebar-item active flex items-center gap-3 px-3 py-2.5 text-[var(--text-primary)] transition-colors duration-200" href="index.php">
+                                <span class="material-icons-outlined text-xl">inventory_2</span>
+                                <p class="text-sm font-medium">Products</p>
                         </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="../orders/index.php" class="nav-link">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
-                                <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
-                            </svg>
-                            <span>Orders</span>
+                            <a class="sidebar-item flex items-center gap-3 px-3 py-2.5 text-[var(--text-primary)] transition-colors duration-200" href="../customers/index.php">
+                                <span class="material-icons-outlined text-xl">group</span>
+                                <p class="text-sm font-medium">Customers</p>
                         </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="../customers/index.php" class="nav-link">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                                <circle cx="12" cy="7" r="4"></circle>
-                            </svg>
-                            <span>Customers</span>
+                            <a class="sidebar-item flex items-center gap-3 px-3 py-2.5 text-[var(--text-primary)] transition-colors duration-200" href="../reports/sales.php">
+                                <span class="material-icons-outlined text-xl">bar_chart</span>
+                                <p class="text-sm font-medium">Reports</p>
                         </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="../reports/sales.php" class="nav-link">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <line x1="18" y1="20" x2="18" y2="10"></line>
-                                <line x1="12" y1="20" x2="12" y2="4"></line>
-                                <line x1="6" y1="20" x2="6" y2="14"></line>
-                                <line x1="3" y1="20" x2="21" y2="20"></line>
-                            </svg>
-                            <span>Reports</span>
-                        </a>
-                    </li>
-                </ul>
             </nav>
-            
-            <div class="sidebar-footer">
-                <a href="../logout.php" class="logout-btn">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-                        <polyline points="16 17 21 12 16 7"></polyline>
-                        <line x1="21" y1="12" x2="9" y2="12"></line>
-                    </svg>
-                    <span>Logout</span>
+                        <div class="flex flex-col gap-1 pt-4 border-t border-[var(--border-color)] mt-auto">
+                            <a class="sidebar-item flex items-center gap-3 px-3 py-2.5 text-[var(--text-primary)] transition-colors duration-200" href="../logout.php">
+                                <span class="material-icons-outlined text-xl">logout</span>
+                                <p class="text-sm font-medium">Logout</p>
                 </a>
             </div>
         </aside>
 
         <!-- Main Content -->
-        <main class="admin-main">
-            <!-- Header -->
-            <header class="admin-header">
-                <div class="header-content">
-                    <h1 class="page-title">Product Management</h1>
-                    <div class="header-actions">
-                        <a href="add.php" class="btn btn-primary">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <line x1="12" y1="5" x2="12" y2="19"></line>
-                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                    <main class="flex-1 p-6 md:p-10 overflow-y-auto">
+                        <div class="frosted-glass rounded-xl p-6">
+                            <div class="flex flex-wrap justify-between items-center gap-4 mb-6">
+                                <h1 class="text-[var(--text-primary)] text-3xl font-bold">Product Inventory</h1>
+                                <a href="add.php" class="bg-[var(--accent-color)] text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 hover:opacity-90 transition-opacity">
+                                    <svg fill="currentColor" height="16" viewBox="0 0 256 256" width="16" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M224,128a8,8,0,0,1-8,8H136v80a8,8,0,0,1-16,0V136H40a8,8,0,0,1,0-16h80V40a8,8,0,0,1,16,0v80h80A8,8,0,0,1,224,128Z"></path>
                             </svg>
-                            Add New Product
+                                    Add Product
                         </a>
                     </div>
-                </div>
-            </header>
-
-            <!-- Products Content -->
-            <div class="admin-content">
-                <!-- Filters -->
-                <div class="filters-section">
-                    <form method="GET" class="filters-form">
-                        <div class="filter-group">
-                            <label for="search">Search</label>
-                            <input type="text" id="search" name="search" value="<?php echo htmlspecialchars($search); ?>" placeholder="Search products...">
+                            
+                            <!-- Search and Filters -->
+                            <form method="GET" class="mb-6">
+                                <div class="flex gap-3 mb-6 flex-wrap">
+                                    <div class="flex-1">
+                                        <input type="text" name="search" placeholder="Search products..." value="<?php echo htmlspecialchars($search); ?>" class="w-full h-9 rounded-md px-4 py-1.5 text-sm bg-[var(--background-secondary)] border border-[var(--border-color)] text-[var(--text-primary)]">
                         </div>
-                        
-                        <div class="filter-group">
-                            <label for="category">Category</label>
-                            <select id="category" name="category">
+                                    <select name="category" class="h-9 rounded-md px-4 py-1.5 text-sm bg-[var(--background-secondary)] border border-[var(--border-color)] text-[var(--text-secondary)]">
                                 <option value="">All Categories</option>
                                 <?php foreach ($categories as $category): ?>
-                                    <option value="<?php echo $category['id']; ?>" <?php echo $category_id == $category['id'] ? 'selected' : ''; ?>>
+                                        <option value="<?php echo $category['id']; ?>" <?php echo $category_filter == $category['id'] ? 'selected' : ''; ?>>
                                         <?php echo htmlspecialchars($category['name']); ?>
                                     </option>
                                 <?php endforeach; ?>
                             </select>
-                        </div>
-                        
-                        <div class="filter-group">
-                            <label for="status">Status</label>
-                            <select id="status" name="status">
-                                <option value="">All Statuses</option>
-                                <option value="active" <?php echo $status === 'active' ? 'selected' : ''; ?>>Active</option>
-                                <option value="inactive" <?php echo $status === 'inactive' ? 'selected' : ''; ?>>Inactive</option>
-                                <option value="sold" <?php echo $status === 'sold' ? 'selected' : ''; ?>>Sold</option>
-                            </select>
-                        </div>
-                        
-                        <div class="filter-actions">
-                            <button type="submit" class="btn btn-primary">Filter</button>
-                            <a href="index.php" class="btn btn-outline">Reset</a>
+                                    <button type="submit" class="h-9 px-4 py-1.5 rounded-md text-sm font-medium bg-[var(--background-secondary)] border border-[var(--border-color)] text-[var(--text-primary)] hover:bg-opacity-80 transition-colors">
+                                        Filter
+                                    </button>
                         </div>
                     </form>
-                </div>
-
-                <!-- Products Table -->
-                <div class="table-section">
-                    <div class="table-header">
-                        <h2>Products (<?php echo $total_products; ?>)</h2>
-                    </div>
-                    
-                    <div class="table-container">
-                        <table class="data-table">
-                            <thead>
-                                <tr>
-                                    <th>Image</th>
-                                    <th data-sort="name">
-                                        Product Name
-                                        <?php if ($sort === 'name'): ?>
-                                            <span class="sort-indicator"><?php echo $order === 'ASC' ? '↑' : '↓'; ?></span>
-                                        <?php endif; ?>
-                                    </th>
-                                    <th>Category</th>
-                                    <th data-sort="price">
-                                        Price
-                                        <?php if ($sort === 'price'): ?>
-                                            <span class="sort-indicator"><?php echo $order === 'ASC' ? '↑' : '↓'; ?></span>
-                                        <?php endif; ?>
-                                    </th>
-                                    <th data-sort="stock_quantity">
-                                        Stock
-                                        <?php if ($sort === 'stock_quantity'): ?>
-                                            <span class="sort-indicator"><?php echo $order === 'ASC' ? '↑' : '↓'; ?></span>
-                                        <?php endif; ?>
-                                    </th>
-                                    <th data-sort="status">
-                                        Status
-                                        <?php if ($sort === 'status'): ?>
-                                            <span class="sort-indicator"><?php echo $order === 'ASC' ? '↑' : '↓'; ?></span>
-                                        <?php endif; ?>
-                                    </th>
-                                    <th>Actions</th>
+                            
+                            <div class="frosted-glass overflow-hidden">
+                                <table class="w-full text-left">
+                                    <thead class="border-b border-[var(--border-color)]">
+                                        <tr>
+                                            <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-white">Product</th>
+                                            <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-white">Category</th>
+                                            <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-white">Stock</th>
+                                            <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-white">Price</th>
+                                            <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-white">Status</th>
+                                            <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-white">Actions</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                <?php if (!empty($products)): ?>
+                                    <tbody class="divide-y divide-[var(--border-color)]">
+                                        <?php if (count($products) > 0): ?>
                                     <?php foreach ($products as $product): ?>
-                                        <tr>
-                                            <td class="product-image-cell">
-                                                <img src="../../images/products/product_<?php echo rand(1, 3); ?>.jpg" alt="<?php echo htmlspecialchars($product['name']); ?>" class="product-thumbnail">
-                                            </td>
-                                            <td>
-                                                <div class="product-name">
-                                                    <a href="edit.php?id=<?php echo $product['id']; ?>">
+                                                <?php 
+                                                    $statusClass = 'status-in-stock';
+                                                    $statusText = 'In Stock';
+                                                    
+                                                    if ($product['stock_quantity'] <= 0) {
+                                                        $statusClass = 'status-out-of-stock';
+                                                        $statusText = 'Out of Stock';
+                                                    } elseif ($product['stock_quantity'] <= 10) {
+                                                        $statusClass = 'status-low-stock';
+                                                        $statusText = 'Low Stock';
+                                                    }
+                                                ?>
+                                                <tr class="hover:bg-[rgba(255,255,255,0.03)]">
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-[var(--text-primary)]">
                                                         <?php echo htmlspecialchars($product['name']); ?>
-                                                    </a>
-                                                    <span class="product-sku">SKU: <?php echo htmlspecialchars($product['sku']); ?></span>
-                                                </div>
                                             </td>
-                                            <td><?php echo htmlspecialchars($product['category_name']); ?></td>
-                                            <td>
-                                                <?php if ($product['sale_price']): ?>
-                                                    <span class="sale-price"><?php echo formatPrice($product['sale_price']); ?></span>
-                                                    <span class="original-price"><?php echo formatPrice($product['price']); ?></span>
-                                                <?php else: ?>
-                                                    <?php echo formatPrice($product['price']); ?>
-                                                <?php endif; ?>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-[var(--text-secondary)]">
+                                                        <?php echo htmlspecialchars($product['category_name'] ?? 'Uncategorized'); ?>
                                             </td>
-                                            <td>
-                                                <span class="stock-badge <?php echo $product['stock_quantity'] <= 3 ? 'low-stock' : ''; ?>">
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-[var(--text-secondary)]">
                                                     <?php echo $product['stock_quantity']; ?>
-                                                </span>
+                                                    </td>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-[var(--text-secondary)]">
+                                                        <?php echo formatPrice($product['price']); ?>
                                             </td>
-                                            <td>
-                                                <span class="status-badge status-<?php echo $product['status']; ?>">
-                                                    <?php echo ucfirst($product['status']); ?>
-                                                </span>
+                                                    <td class="px-6 py-4 whitespace-nowrap">
+                                                        <span class="status-badge <?php echo $statusClass; ?>"><?php echo $statusText; ?></span>
                                             </td>
-                                            <td>
-                                                <div class="table-actions">
-                                                    <a href="edit.php?id=<?php echo $product['id']; ?>" class="action-btn edit-btn" title="Edit Product">
-                                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                                                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                                                        </svg>
+                                                    <td class="px-6 py-4 whitespace-nowrap">
+                                                        <div class="flex space-x-2">
+                                                            <a href="edit.php?id=<?php echo $product['id']; ?>" class="text-blue-400 hover:text-blue-300">
+                                                                <span class="material-icons-outlined text-sm">edit</span>
                                                     </a>
-                                                    <a href="../../shop/product.php?slug=<?php echo $product['slug']; ?>" target="_blank" class="action-btn view-btn" title="View Product">
-                                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                                                            <circle cx="12" cy="12" r="3"></circle>
-                                                        </svg>
-                                                    </a>
-                                                    <a href="delete.php?id=<?php echo $product['id']; ?>" class="action-btn delete-btn" title="Delete Product" data-confirm="Are you sure you want to delete this product?">
-                                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                            <polyline points="3,6 5,6 21,6"></polyline>
-                                                            <path d="M19,6v14a2,2,0,0,1-2,2H7a2,2,0,0,1-2-2V6m3,0V4a2,2,0,0,1,2-2h4a2,2,0,0,1,2,2V6"></path>
-                                                            <line x1="10" y1="11" x2="10" y2="17"></line>
-                                                            <line x1="14" y1="11" x2="14" y2="17"></line>
-                                                        </svg>
+                                                            <a href="delete.php?id=<?php echo $product['id']; ?>" class="text-red-400 hover:text-red-300" onclick="return confirm('Are you sure you want to delete this product?');">
+                                                                <span class="material-icons-outlined text-sm">delete</span>
                                                     </a>
                                                 </div>
                                             </td>
@@ -547,41 +235,19 @@ $categories = fetchAll("SELECT id, name FROM categories WHERE status = 'active' 
                                     <?php endforeach; ?>
                                 <?php else: ?>
                                     <tr>
-                                        <td colspan="7" class="no-data">No products found</td>
+                                                <td colspan="6" class="px-6 py-4 text-center text-sm text-[var(--text-secondary)]">
+                                                    No products found
+                                                </td>
                                     </tr>
                                 <?php endif; ?>
                             </tbody>
                         </table>
                     </div>
-                    
-                    <!-- Pagination -->
-                    <?php if ($total_pages > 1): ?>
-                        <div class="pagination">
-                            <?php if ($page > 1): ?>
-                                <a href="?page=<?php echo $page - 1; ?>&sort=<?php echo $sort; ?>&order=<?php echo $order; ?>&category=<?php echo $category_id; ?>&status=<?php echo $status; ?>&search=<?php echo urlencode($search); ?>" class="pagination-link">
-                                    Previous
-                                </a>
-                            <?php endif; ?>
-                            
-                            <?php for ($i = 1; $i <= $total_pages; $i++): ?>
-                                <a href="?page=<?php echo $i; ?>&sort=<?php echo $sort; ?>&order=<?php echo $order; ?>&category=<?php echo $category_id; ?>&status=<?php echo $status; ?>&search=<?php echo urlencode($search); ?>" 
-                                   class="pagination-link <?php echo $i === $page ? 'active' : ''; ?>">
-                                    <?php echo $i; ?>
-                                </a>
-                            <?php endfor; ?>
-                            
-                            <?php if ($page < $total_pages): ?>
-                                <a href="?page=<?php echo $page + 1; ?>&sort=<?php echo $sort; ?>&order=<?php echo $order; ?>&category=<?php echo $category_id; ?>&status=<?php echo $status; ?>&search=<?php echo urlencode($search); ?>" class="pagination-link">
-                                    Next
-                                </a>
-                            <?php endif; ?>
                         </div>
-                    <?php endif; ?>
+                    </main>
                 </div>
             </div>
-        </main>
+        </div>
     </div>
-
-    <script src="../../js/admin.js"></script>
 </body>
 </html>

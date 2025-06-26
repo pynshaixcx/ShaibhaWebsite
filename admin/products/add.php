@@ -1,5 +1,5 @@
 <?php
-$page_title = "Add New Product";
+$page_title = "Add Product";
 require_once '../../includes/functions.php';
 
 // Check if admin is logged in
@@ -8,399 +8,338 @@ if (!isAdminLoggedIn()) {
 }
 
 // Get categories for dropdown
-$categories = fetchAll("SELECT id, name FROM categories WHERE status = 'active' ORDER BY name");
+$categories = fetchAll("SELECT * FROM categories ORDER BY name");
 
-$error = '';
-$success = '';
+// Initialize variables
+$product = [
+    'name' => '',
+    'description' => '',
+    'price' => '',
+    'sale_price' => '',
+    'sku' => '',
+    'stock_quantity' => '',
+    'category_id' => '',
+    'status' => 'active'
+];
 
+$errors = [];
+$success = false;
+
+// Handle form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Validate CSRF token
-    if (!verifyCSRFToken($_POST['csrf_token'] ?? '')) {
-        $error = 'Invalid security token. Please try again.';
+    // Validate and sanitize inputs
+    $product['name'] = sanitizeInput($_POST['name'] ?? '');
+    $product['description'] = sanitizeInput($_POST['description'] ?? '');
+    $product['price'] = floatval($_POST['price'] ?? 0);
+    $product['sale_price'] = !empty($_POST['sale_price']) ? floatval($_POST['sale_price']) : null;
+    $product['sku'] = sanitizeInput($_POST['sku'] ?? '');
+    $product['stock_quantity'] = intval($_POST['stock_quantity'] ?? 0);
+    $product['category_id'] = intval($_POST['category_id'] ?? 0);
+    $product['status'] = sanitizeInput($_POST['status'] ?? 'active');
+    
+    // Validate required fields
+    if (empty($product['name'])) {
+        $errors['name'] = 'Product name is required';
+    }
+    
+    if (empty($product['price']) || $product['price'] <= 0) {
+        $errors['price'] = 'Valid price is required';
+    }
+    
+    if (empty($product['sku'])) {
+        $errors['sku'] = 'SKU is required';
     } else {
-        // Get form data
-        $name = sanitizeInput($_POST['name'] ?? '');
-        $slug = sanitizeInput($_POST['slug'] ?? '');
-        $description = sanitizeInput($_POST['description'] ?? '');
-        $short_description = sanitizeInput($_POST['short_description'] ?? '');
-        $category_id = intval($_POST['category_id'] ?? 0);
-        $price = floatval($_POST['price'] ?? 0);
-        $sale_price = !empty($_POST['sale_price']) ? floatval($_POST['sale_price']) : null;
-        $sku = sanitizeInput($_POST['sku'] ?? '');
-        $stock_quantity = intval($_POST['stock_quantity'] ?? 1);
-        $condition_rating = sanitizeInput($_POST['condition_rating'] ?? 'good');
-        $size = sanitizeInput($_POST['size'] ?? '');
-        $color = sanitizeInput($_POST['color'] ?? '');
-        $brand = sanitizeInput($_POST['brand'] ?? '');
-        $material = sanitizeInput($_POST['material'] ?? '');
-        $care_instructions = sanitizeInput($_POST['care_instructions'] ?? '');
-        $featured = isset($_POST['featured']) ? 1 : 0;
-        $status = sanitizeInput($_POST['status'] ?? 'active');
+        // Check if SKU already exists
+        $existing = fetchOne("SELECT id FROM products WHERE sku = ?", [$product['sku']]);
+        if ($existing) {
+            $errors['sku'] = 'This SKU is already in use';
+        }
+    }
+    
+    // If no errors, proceed with saving
+    if (empty($errors)) {
+        // Generate slug from name
+        $slug = createSlug($product['name']);
         
-        // Generate slug if empty
-        if (empty($slug)) {
-            $slug = generateSlug($name);
+        // Check if slug exists and append number if needed
+        $base_slug = $slug;
+        $counter = 1;
+        
+        while (fetchOne("SELECT id FROM products WHERE slug = ?", [$slug])) {
+            $slug = $base_slug . '-' . $counter;
+            $counter++;
         }
         
-        // Validation
-        if (empty($name) || empty($description) || $category_id <= 0 || $price <= 0) {
-            $error = 'Please fill in all required fields';
-        } elseif ($sale_price !== null && $sale_price >= $price) {
-            $error = 'Sale price must be less than regular price';
-        } else {
-            // Check if slug already exists
-            $existing_product = fetchOne("SELECT id FROM products WHERE slug = ?", [$slug]);
-            
-            if ($existing_product) {
-                $error = 'A product with this slug already exists. Please choose a different slug.';
-            } else {
-                // Insert product
-                $sql = "INSERT INTO products (
-                    name, slug, description, short_description, category_id, price, sale_price, 
-                    sku, stock_quantity, condition_rating, size, color, brand, material, 
-                    care_instructions, featured, status
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-                
-                $params = [
-                    $name, $slug, $description, $short_description, $category_id, $price, $sale_price,
-                    $sku, $stock_quantity, $condition_rating, $size, $color, $brand, $material,
-                    $care_instructions, $featured, $status
-                ];
-                
-                $result = executeQuery($sql, $params);
+        // Insert new product
+        $result = executeQuery(
+            "INSERT INTO products (name, description, slug, price, sale_price, sku, stock_quantity, category_id, status, created_at) 
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())",
+            [
+                $product['name'],
+                $product['description'],
+                $slug,
+                $product['price'],
+                $product['sale_price'],
+                $product['sku'],
+                $product['stock_quantity'],
+                $product['category_id'] ?: null,
+                $product['status']
+            ]
+        );
                 
                 if ($result) {
                     $product_id = getLastInsertId();
                     
-                    // Process image upload (placeholder for now)
-                    // In a real implementation, you would handle file uploads here
-                    
-                    // Log activity
-                    logActivity('admin', getCurrentAdminId(), 'product_created', "Product '{$name}' created");
-                    
-                    $success = 'Product added successfully!';
-                    
-                    // Redirect after a short delay
-                    header("refresh:2;url=edit.php?id={$product_id}");
-                } else {
-                    $error = 'Failed to add product. Please try again.';
+            // Handle image upload
+            if (!empty($_FILES['image']['name'])) {
+                $upload_dir = '../../images/products/';
+                $file_name = 'product_' . $product_id . '.jpg';
+                $upload_path = $upload_dir . $file_name;
+                
+                if (move_uploaded_file($_FILES['image']['tmp_name'], $upload_path)) {
+                    // Update product with image path
+                    executeQuery(
+                        "UPDATE products SET image_path = ? WHERE id = ?",
+                        [$file_name, $product_id]
+                    );
                 }
             }
+                    
+                    // Log activity
+            logActivity('admin', getCurrentAdminId(), 'product_add', 'Added new product: ' . $product['name']);
+            
+            // Redirect to products list with success message
+            setFlashMessage('success', 'Product added successfully');
+            redirect('index.php');
+                } else {
+            $errors['general'] = 'Failed to add product. Please try again.';
         }
     }
 }
 ?>
-
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo $page_title; ?> - ShaiBha Admin</title>
-    
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
-    <!-- Styles -->
-    <link rel="stylesheet" href="../../css/admin.css">
-    
-    <!-- Favicon -->
-    <link rel="icon" type="image/svg+xml" href="../../images/favicon.svg">
+    <link crossorigin="" href="https://fonts.gstatic.com/" rel="preconnect"/>
+    <link as="style" href="https://fonts.googleapis.com/css2?display=swap&family=Inter%3Awght%40400%3B500%3B600%3B700%3B900&family=Noto+Sans%3Awght%40400%3B500%3B700%3B900" onload="this.rel='stylesheet'" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet"/>
+    <meta charset="utf-8"/>
+    <title>ShaiBha Admin - Add New Product</title>
+    <link href="data:image/x-icon;base64," rel="icon" type="image/x-icon"/>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <style type="text/tailwindcss">
+          :root {
+        --background-primary: rgba(20, 20, 20, 0.7);
+        --background-secondary: rgba(48, 48, 48, 0.7);
+        --border-color: rgba(48, 48, 48, 0.9);
+            --text-primary: #ffffff;
+        --text-secondary: #ababab;
+        --blur-intensity: 10px;
+        --sidebar-glow: 0 0 20px 5px rgba(128, 128, 255, 0.2);
+      }
+      .frosted-glass {
+        backdrop-filter: blur(var(--blur-intensity));
+        -webkit-backdrop-filter: blur(var(--blur-intensity));
+      }
+      .sidebar-item:hover, .sidebar-item.active {
+        background-color: var(--background-secondary) !important;
+        border-radius: 0.5rem;
+      }
+      .icon-button:hover {
+        background-color: rgba(75, 75, 75, 0.7) !important;
+      }
+      .sidebar-glow-effect {
+        box-shadow: var(--sidebar-glow);
+      }
+          .input-field {
+        background-color: rgba(48, 48, 48, 0.7);
+        border: 1px solid var(--border-color);
+        color: var(--text-primary);
+          }
+          .input-field:focus {
+        border-color: white;
+        box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.25);
+      }
+          .btn-primary {
+        background-color: rgba(255, 255, 255, 0.1);
+            color: var(--text-primary);
+          }
+          .btn-primary:hover {
+        background-color: rgba(255, 255, 255, 0.2);
+          }
+          .btn-secondary {
+        background-color: var(--background-secondary);
+            color: var(--text-primary);
+          }
+          .btn-secondary:hover {
+        background-color: rgba(75, 75, 75, 0.7);
+          }
+        </style>
 </head>
-<body>
-    <div class="admin-layout">
-        <!-- Sidebar -->
-        <aside class="admin-sidebar">
-            <div class="sidebar-header">
-                <h1 class="sidebar-logo">ShaiBha</h1>
-                <p class="sidebar-subtitle">Admin Panel</p>
+<body class="bg-gradient-to-br from-black via-slate-900 to-black">
+<div class="relative flex size-full min-h-screen flex-col bg-cover bg-center bg-fixed" style='font-family: Inter, "Noto Sans", sans-serif;'>
+<div class="relative flex size-full min-h-screen flex-col dark group/design-root">
+    <div class="layout-container flex h-full grow flex-col">
+<header class="frosted-glass sticky top-0 z-50 flex items-center justify-between whitespace-nowrap border-b border-solid border-[var(--border-color)] bg-[var(--background-primary)] px-6 py-4 md:px-10">
+    <div class="flex items-center gap-4">
+<div class="text-[var(--text-primary)]">
+<h2 class="text-xl font-semibold leading-tight tracking-[-0.015em]">
+<span class="font-bold">ShaiBha</span> Admin Panel
+</h2>
+    </div>
+    </div>
+<div class="flex items-center gap-3">
             </div>
-            
-            <nav class="sidebar-nav">
-                <ul class="nav-list">
-                    <li class="nav-item">
-                        <a href="../index.php" class="nav-link">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-                                <polyline points="9,22 9,12 15,12 15,22"></polyline>
-                            </svg>
-                            <span>Dashboard</span>
+</header>
+
+<div class="flex flex-1">
+<!-- Sidebar -->
+<aside class="frosted-glass sticky top-[73px] h-[calc(100vh-73px)] w-64 flex-col justify-between border-r border-solid border-[var(--border-color)] bg-[var(--background-primary)] p-4 hidden md:flex sidebar-glow-effect rounded-r-xl">
+<nav class="flex flex-col gap-2">
+<a class="sidebar-item flex items-center gap-3 px-3 py-2.5 text-[var(--text-primary)] transition-colors duration-200" href="../index.php">
+<span class="material-icons-outlined text-xl">dashboard</span>
+<p class="text-sm font-medium">Dashboard</p>
                         </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="index.php" class="nav-link active">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
-                                <line x1="3" y1="6" x2="21" y2="6"></line>
-                                <path d="M16 10a4 4 0 0 1-8 0"></path>
-                            </svg>
-                            <span>Products</span>
+<a class="sidebar-item flex items-center gap-3 px-3 py-2.5 text-[var(--text-primary)] transition-colors duration-200" href="../orders/index.php">
+<span class="material-icons-outlined text-xl">list_alt</span>
+<p class="text-sm font-medium">Orders</p>
+</a>
+<a class="sidebar-item active flex items-center gap-3 px-3 py-2.5 text-[var(--text-primary)] transition-colors duration-200" href="index.php">
+<span class="material-icons-outlined text-xl">inventory_2</span>
+<p class="text-sm font-medium">Products</p>
                         </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="../orders/index.php" class="nav-link">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
-                                <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
-                            </svg>
-                            <span>Orders</span>
+<a class="sidebar-item flex items-center gap-3 px-3 py-2.5 text-[var(--text-primary)] transition-colors duration-200" href="../customers/index.php">
+<span class="material-icons-outlined text-xl">group</span>
+<p class="text-sm font-medium">Customers</p>
                         </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="../customers/index.php" class="nav-link">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                                <circle cx="12" cy="7" r="4"></circle>
-                            </svg>
-                            <span>Customers</span>
+<a class="sidebar-item flex items-center gap-3 px-3 py-2.5 text-[var(--text-primary)] transition-colors duration-200" href="../reports/sales.php">
+<span class="material-icons-outlined text-xl">bar_chart</span>
+<p class="text-sm font-medium">Reports</p>
                         </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="../reports/sales.php" class="nav-link">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <line x1="18" y1="20" x2="18" y2="10"></line>
-                                <line x1="12" y1="20" x2="12" y2="4"></line>
-                                <line x1="6" y1="20" x2="6" y2="14"></line>
-                                <line x1="3" y1="20" x2="21" y2="20"></line>
-                            </svg>
-                            <span>Reports</span>
-                        </a>
-                    </li>
-                </ul>
             </nav>
-            
-            <div class="sidebar-footer">
-                <a href="../logout.php" class="logout-btn">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-                        <polyline points="16 17 21 12 16 7"></polyline>
-                        <line x1="21" y1="12" x2="9" y2="12"></line>
-                    </svg>
-                    <span>Logout</span>
+<div class="flex flex-col gap-1 pt-4 border-t border-[var(--border-color)] mt-auto">
+<a class="sidebar-item flex items-center gap-3 px-3 py-2.5 text-[var(--text-primary)] transition-colors duration-200" href="../logout.php">
+<span class="material-icons-outlined text-xl">logout</span>
+<p class="text-sm font-medium">Logout</p>
                 </a>
             </div>
         </aside>
 
-        <!-- Main Content -->
-        <main class="admin-main">
-            <!-- Header -->
-            <header class="admin-header">
-                <div class="header-content">
-                    <h1 class="page-title">Add New Product</h1>
-                    <div class="header-actions">
-                        <a href="index.php" class="btn btn-outline">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <line x1="19" y1="12" x2="5" y2="12"></line>
-                                <polyline points="12 19 5 12 12 5"></polyline>
-                            </svg>
-                            Back to Products
-                        </a>
+<main class="flex-1 p-6 md:p-10 overflow-y-auto">
+<div class="frosted-glass rounded-xl p-6">
+<div class="flex flex-wrap justify-between items-center gap-3 mb-6">
+    <h2 class="text-[var(--text-primary)] text-3xl font-bold tracking-tight">Add New Product</h2>
                     </div>
-                </div>
-            </header>
-
-            <!-- Add Product Content -->
-            <div class="admin-content">
-                <?php if ($error): ?>
-                    <div class="alert alert-error">
-                        <?php echo htmlspecialchars($error); ?>
+                
+<?php if (!empty($errors)): ?>
+<div class="bg-red-500/30 text-red-300 p-4 rounded-xl mb-6">
+    <ul class="list-disc pl-5">
+        <?php foreach ($errors as $error): ?>
+            <li><?php echo htmlspecialchars($error); ?></li>
+        <?php endforeach; ?>
+    </ul>
                     </div>
                 <?php endif; ?>
                 
-                <?php if ($success): ?>
-                    <div class="alert alert-success">
-                        <?php echo htmlspecialchars($success); ?>
-                    </div>
-                <?php endif; ?>
-                
-                <form method="POST" enctype="multipart/form-data" class="admin-form" data-validate>
-                    <input type="hidden" name="csrf_token" value="<?php echo generateCSRFToken(); ?>">
-                    
-                    <div class="form-layout">
-                        <div class="form-main">
-                            <!-- Basic Information -->
-                            <div class="form-section">
-                                <h2 class="section-title">Basic Information</h2>
-                                
-                                <div class="form-group">
-                                    <label for="name">Product Name *</label>
-                                    <input type="text" id="name" name="name" required value="<?php echo htmlspecialchars($_POST['name'] ?? ''); ?>">
-                                </div>
-                                
-                                <div class="form-group">
-                                    <label for="slug">Slug</label>
-                                    <input type="text" id="slug" name="slug" value="<?php echo htmlspecialchars($_POST['slug'] ?? ''); ?>" placeholder="Leave empty to generate automatically">
-                                    <div class="field-hint">URL-friendly version of the name (e.g., vintage-silk-dress)</div>
-                                </div>
-                                
-                                <div class="form-row">
-                                    <div class="form-group">
-                                        <label for="category_id">Category *</label>
-                                        <select id="category_id" name="category_id" required>
+<form method="POST" enctype="multipart/form-data">
+<section class="frosted-glass p-6 rounded-xl shadow-xl bg-[var(--background-secondary)] border border-[var(--border-color)] mb-6">
+    <h3 class="text-[var(--text-primary)] text-xl font-semibold mb-6">Product Information</h3>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <label class="flex flex-col gap-2">
+    <p class="text-[var(--text-primary)] text-sm font-medium">Product Name</p>
+<input name="name" class="form-input input-field w-full rounded-lg text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-white/50 h-12 placeholder:text-[var(--text-secondary)] p-3 text-sm" placeholder="e.g. Wireless Headphones" value="<?php echo htmlspecialchars($product['name']); ?>" required/>
+    </label>
+    
+    <label class="flex flex-col gap-2">
+    <p class="text-[var(--text-primary)] text-sm font-medium">Category</p>
+    <select name="category_id" class="form-select input-field w-full rounded-lg text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-white/50 h-12 placeholder:text-[var(--text-secondary)] p-3 text-sm">
                                             <option value="">Select Category</option>
                                             <?php foreach ($categories as $category): ?>
-                                                <option value="<?php echo $category['id']; ?>" <?php echo isset($_POST['category_id']) && $_POST['category_id'] == $category['id'] ? 'selected' : ''; ?>>
+            <option value="<?php echo $category['id']; ?>" <?php echo $product['category_id'] == $category['id'] ? 'selected' : ''; ?>>
                                                     <?php echo htmlspecialchars($category['name']); ?>
                                                 </option>
                                             <?php endforeach; ?>
                                         </select>
-                                    </div>
+    </label>
                                     
-                                    <div class="form-group">
-                                        <label for="sku">SKU</label>
-                                        <input type="text" id="sku" name="sku" value="<?php echo htmlspecialchars($_POST['sku'] ?? ''); ?>">
+    <label class="flex flex-col gap-2 md:col-span-2">
+    <p class="text-[var(--text-primary)] text-sm font-medium">Description</p>
+<textarea name="description" class="form-textarea input-field w-full rounded-lg text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-white/50 min-h-32 placeholder:text-[var(--text-secondary)] p-3 text-sm resize-y" placeholder="Provide a detailed description of your product..."><?php echo htmlspecialchars($product['description']); ?></textarea>
+    </label>
                                     </div>
-                                </div>
+    </section>
                                 
-                                <div class="form-group">
-                                    <label for="short_description">Short Description</label>
-                                    <input type="text" id="short_description" name="short_description" value="<?php echo htmlspecialchars($_POST['short_description'] ?? ''); ?>" maxlength="500">
-                                    <div class="field-hint">Brief description for product listings (max 500 characters)</div>
+<section class="frosted-glass p-6 rounded-xl shadow-xl bg-[var(--background-secondary)] border border-[var(--border-color)] mb-6">
+    <h3 class="text-[var(--text-primary)] text-xl font-semibold mb-6">Product Images</h3>
+<div class="flex flex-col items-center justify-center gap-4 rounded-lg border-2 border-dashed border-[var(--border-color)] px-6 py-10 hover:border-white/50 transition-colors">
+<span class="material-icons-outlined text-[var(--text-secondary)]" style="font-size: 48px;">photo_library</span>
+    <p class="text-[var(--text-primary)] text-base font-medium">Drag and drop images here, or click to browse</p>
+    <p class="text-[var(--text-secondary)] text-xs">Supports JPG, PNG, GIF up to 5MB</p>
+    <input type="file" name="image" id="image" class="hidden" accept="image/*" />
+    <label for="image" class="btn-secondary mt-2 flex items-center justify-center rounded-md h-10 px-5 text-sm font-semibold tracking-wide transition-colors cursor-pointer">
+    <span class="truncate">Browse Files</span>
+    </label>
                                 </div>
+    </section>
+
+<section class="frosted-glass p-6 rounded-xl shadow-xl bg-[var(--background-secondary)] border border-[var(--border-color)] mb-6">
+    <h3 class="text-[var(--text-primary)] text-xl font-semibold mb-6">Pricing &amp; Inventory</h3>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <label class="flex flex-col gap-2">
+    <p class="text-[var(--text-primary)] text-sm font-medium">Price (INR)</p>
+<input name="price" class="form-input input-field w-full rounded-lg text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-white/50 h-12 placeholder:text-[var(--text-secondary)] p-3 text-sm" placeholder="e.g. 7499.00" type="number" step="0.01" value="<?php echo htmlspecialchars($product['price']); ?>" required/>
+    </label>
                                 
-                                <div class="form-group">
-                                    <label for="description">Full Description *</label>
-                                    <textarea id="description" name="description" rows="6" required><?php echo htmlspecialchars($_POST['description'] ?? ''); ?></textarea>
-                                </div>
-                            </div>
-                            
-                            <!-- Pricing & Inventory -->
-                            <div class="form-section">
-                                <h2 class="section-title">Pricing & Inventory</h2>
-                                
-                                <div class="form-row">
-                                    <div class="form-group">
-                                        <label for="price">Regular Price (₹) *</label>
-                                        <input type="number" id="price" name="price" step="0.01" min="0" required value="<?php echo htmlspecialchars($_POST['price'] ?? ''); ?>">
-                                    </div>
+    <label class="flex flex-col gap-2">
+    <p class="text-[var(--text-primary)] text-sm font-medium">Sale Price (INR, optional)</p>
+<input name="sale_price" class="form-input input-field w-full rounded-lg text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-white/50 h-12 placeholder:text-[var(--text-secondary)] p-3 text-sm" placeholder="e.g. 6999.00" type="number" step="0.01" value="<?php echo htmlspecialchars($product['sale_price'] ?? ''); ?>"/>
+    </label>
+    
+    <label class="flex flex-col gap-2">
+    <p class="text-[var(--text-primary)] text-sm font-medium">Stock Keeping Unit (SKU)</p>
+<input name="sku" class="form-input input-field w-full rounded-lg text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-white/50 h-12 placeholder:text-[var(--text-secondary)] p-3 text-sm" placeholder="e.g. WH-001-BLK" value="<?php echo htmlspecialchars($product['sku']); ?>" required/>
+    </label>
                                     
-                                    <div class="form-group">
-                                        <label for="sale_price">Sale Price (₹)</label>
-                                        <input type="number" id="sale_price" name="sale_price" step="0.01" min="0" value="<?php echo htmlspecialchars($_POST['sale_price'] ?? ''); ?>">
-                                    </div>
-                                </div>
+    <label class="flex flex-col gap-2">
+    <p class="text-[var(--text-primary)] text-sm font-medium">Quantity in Stock</p>
+<input name="stock_quantity" class="form-input input-field w-full rounded-lg text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-white/50 h-12 placeholder:text-[var(--text-secondary)] p-3 text-sm" placeholder="e.g. 500" type="number" value="<?php echo htmlspecialchars($product['stock_quantity']); ?>" required/>
+    </label>
                                 
-                                <div class="form-row">
-                                    <div class="form-group">
-                                        <label for="stock_quantity">Stock Quantity *</label>
-                                        <input type="number" id="stock_quantity" name="stock_quantity" min="0" required value="<?php echo htmlspecialchars($_POST['stock_quantity'] ?? '1'); ?>">
-                                    </div>
-                                    
-                                    <div class="form-group">
-                                        <label for="condition_rating">Condition *</label>
-                                        <select id="condition_rating" name="condition_rating" required>
-                                            <option value="excellent" <?php echo isset($_POST['condition_rating']) && $_POST['condition_rating'] === 'excellent' ? 'selected' : ''; ?>>Excellent</option>
-                                            <option value="very_good" <?php echo isset($_POST['condition_rating']) && $_POST['condition_rating'] === 'very_good' ? 'selected' : ''; ?>>Very Good</option>
-                                            <option value="good" <?php echo isset($_POST['condition_rating']) && $_POST['condition_rating'] === 'good' ? 'selected' : (!isset($_POST['condition_rating']) ? 'selected' : ''); ?>>Good</option>
-                                            <option value="fair" <?php echo isset($_POST['condition_rating']) && $_POST['condition_rating'] === 'fair' ? 'selected' : ''; ?>>Fair</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <!-- Product Attributes -->
-                            <div class="form-section">
-                                <h2 class="section-title">Product Attributes</h2>
-                                
-                                <div class="form-row">
-                                    <div class="form-group">
-                                        <label for="size">Size</label>
-                                        <input type="text" id="size" name="size" value="<?php echo htmlspecialchars($_POST['size'] ?? ''); ?>">
-                                    </div>
-                                    
-                                    <div class="form-group">
-                                        <label for="color">Color</label>
-                                        <input type="text" id="color" name="color" value="<?php echo htmlspecialchars($_POST['color'] ?? ''); ?>">
-                                    </div>
-                                </div>
-                                
-                                <div class="form-row">
-                                    <div class="form-group">
-                                        <label for="brand">Brand</label>
-                                        <input type="text" id="brand" name="brand" value="<?php echo htmlspecialchars($_POST['brand'] ?? ''); ?>">
-                                    </div>
-                                    
-                                    <div class="form-group">
-                                        <label for="material">Material</label>
-                                        <input type="text" id="material" name="material" value="<?php echo htmlspecialchars($_POST['material'] ?? ''); ?>">
-                                    </div>
-                                </div>
-                                
-                                <div class="form-group">
-                                    <label for="care_instructions">Care Instructions</label>
-                                    <textarea id="care_instructions" name="care_instructions" rows="4"><?php echo htmlspecialchars($_POST['care_instructions'] ?? ''); ?></textarea>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="form-sidebar">
-                            <!-- Product Status -->
-                            <div class="form-section">
-                                <h2 class="section-title">Product Status</h2>
-                                
-                                <div class="form-group">
-                                    <label for="status">Status</label>
-                                    <select id="status" name="status">
-                                        <option value="active" <?php echo isset($_POST['status']) && $_POST['status'] === 'active' ? 'selected' : (!isset($_POST['status']) ? 'selected' : ''); ?>>Active</option>
-                                        <option value="inactive" <?php echo isset($_POST['status']) && $_POST['status'] === 'inactive' ? 'selected' : ''; ?>>Inactive</option>
-                                        <option value="sold" <?php echo isset($_POST['status']) && $_POST['status'] === 'sold' ? 'selected' : ''; ?>>Sold</option>
+    <label class="flex flex-col gap-2">
+    <p class="text-[var(--text-primary)] text-sm font-medium">Status</p>
+    <select name="status" class="form-select input-field w-full rounded-lg text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-white/50 h-12 placeholder:text-[var(--text-secondary)] p-3 text-sm">
+        <option value="active" <?php echo $product['status'] === 'active' ? 'selected' : ''; ?>>Active</option>
+        <option value="inactive" <?php echo $product['status'] === 'inactive' ? 'selected' : ''; ?>>Inactive</option>
                                     </select>
-                                </div>
-                                
-                                <div class="form-group checkbox-group">
-                                    <label class="checkbox-label">
-                                        <input type="checkbox" name="featured" <?php echo isset($_POST['featured']) ? 'checked' : ''; ?>>
-                                        <span>Featured Product</span>
                                     </label>
                                 </div>
-                            </div>
+    </section>
                             
-                            <!-- Product Image -->
-                            <div class="form-section">
-                                <h2 class="section-title">Product Image</h2>
-                                
-                                <div class="form-group">
-                                    <label for="product_image">Main Image</label>
-                                    <div class="image-preview-container">
-                                        <img id="image-preview" src="../../images/placeholder.jpg" alt="Product Image Preview" class="image-preview">
-                                    </div>
-                                    <input type="file" id="product_image" name="product_image" accept="image/*" onchange="previewImage(this, 'image-preview')">
-                                    <div class="field-hint">Recommended size: 800x800 pixels</div>
-                                </div>
-                                
-                                <div class="form-group">
-                                    <label for="additional_images">Additional Images</label>
-                                    <input type="file" id="additional_images" name="additional_images[]" accept="image/*" multiple>
-                                    <div class="field-hint">You can select multiple images</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="form-actions">
-                        <button type="submit" class="btn btn-primary">Add Product</button>
-                        <a href="index.php" class="btn btn-outline">Cancel</a>
+    <div class="flex justify-end gap-4 mt-4">
+<a href="index.php" class="btn-secondary flex items-center justify-center rounded-lg h-11 px-6 text-sm font-semibold tracking-wide transition-colors">
+    <span class="truncate">Cancel</span>
+</a>
+<button type="submit" class="btn-primary flex items-center justify-center rounded-lg h-11 px-6 text-sm font-semibold tracking-wide transition-colors">
+    <span class="truncate">Add Product</span>
+</button>
                     </div>
                 </form>
             </div>
         </main>
     </div>
+</div>
+</div>
+    </div>
 
-    <script src="../../js/admin.js"></script>
     <script>
     // Generate slug from product name
-    document.getElementById('name').addEventListener('blur', function() {
-        const slugField = document.getElementById('slug');
-        if (slugField.value === '') {
-            const name = this.value;
-            const slug = name.toLowerCase()
-                .replace(/[^\w\s-]/g, '')
-                .replace(/[\s_-]+/g, '-')
-                .replace(/^-+|-+$/g, '');
-            
-            slugField.value = slug;
+document.addEventListener('DOMContentLoaded', function() {
+    const nameField = document.querySelector('input[name="name"]');
+    if (nameField) {
+        nameField.addEventListener('blur', function() {
+            // This is just for client-side validation - the server will handle the actual slug creation
+            console.log('Name field blurred:', this.value);
+        });
         }
     });
     </script>

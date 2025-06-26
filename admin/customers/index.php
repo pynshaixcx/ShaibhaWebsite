@@ -54,261 +54,259 @@ $params[] = $customers_per_page;
 $params[] = $offset;
 
 $customers = fetchAll($sql, $params);
+
+// Get order counts for each customer
+$customer_orders = [];
+if (!empty($customers)) {
+    $customer_ids = array_column($customers, 'id');
+    $customer_ids_str = implode(',', $customer_ids);
+    $order_counts = fetchAll("SELECT customer_id, COUNT(*) as order_count FROM orders WHERE customer_id IN ({$customer_ids_str}) GROUP BY customer_id");
+    
+    foreach ($order_counts as $count) {
+        $customer_orders[$count['customer_id']] = $count['order_count'];
+    }
+}
 ?>
 
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo $page_title; ?> - ShaiBha Admin</title>
-    
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
-    <!-- Styles -->
-    <link rel="stylesheet" href="../../css/admin.css">
-    
-    <!-- Favicon -->
-    <link rel="icon" type="image/svg+xml" href="../../images/favicon.svg">
+    <meta charset="utf-8"/>
+    <link crossorigin="" href="https://fonts.gstatic.com/" rel="preconnect"/>
+    <link as="style" href="https://fonts.googleapis.com/css2?display=swap&family=Inter%3Awght%40400%3B500%3B600%3B700%3B900&family=Noto+Sans%3Awght%40400%3B500%3B700%3B900" onload="this.rel='stylesheet'" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet"/>
+    <title>ShaiBha Admin - Customers</title>
+    <link href="data:image/x-icon;base64," rel="icon" type="image/x-icon"/>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <style type="text/tailwindcss">
+        :root {
+            --background-primary: rgba(20, 20, 20, 0.7);
+            --background-secondary: rgba(48, 48, 48, 0.7);
+            --border-color: rgba(48, 48, 48, 0.9);
+            --text-primary: #ffffff;
+            --text-secondary: #ababab;
+            --text-tertiary: #9ca3af;
+            --blur-intensity: 10px;
+            --sidebar-glow: 0 0 20px 5px rgba(128, 128, 255, 0.2);
+            --accent-primary: #60a5fa;
+        }
+        .frosted-glass {
+            backdrop-filter: blur(var(--blur-intensity));
+            -webkit-backdrop-filter: blur(var(--blur-intensity));
+        }
+        .sidebar-item:hover, .sidebar-item.active {
+            background-color: var(--background-secondary) !important;
+            border-radius: 0.5rem;
+        }
+        .icon-button:hover {
+            background-color: rgba(75, 75, 75, 0.7) !important;
+        }
+        .sidebar-glow-effect {
+            box-shadow: var(--sidebar-glow);
+        }
+    </style>
 </head>
-<body>
-    <div class="admin-layout">
-        <!-- Sidebar -->
-        <aside class="admin-sidebar">
-            <div class="sidebar-header">
-                <h1 class="sidebar-logo">ShaiBha</h1>
-                <p class="sidebar-subtitle">Admin Panel</p>
+<body class="bg-gradient-to-br from-black via-slate-900 to-black">
+    <div class="relative flex size-full min-h-screen flex-col bg-cover bg-center bg-fixed" style='font-family: Inter, "Noto Sans", sans-serif;'>
+        <div class="relative flex size-full min-h-screen flex-col dark group/design-root overflow-x-hidden">
+            <div class="layout-container flex h-full grow flex-col">
+                <!-- Header -->
+                <header class="frosted-glass sticky top-0 z-50 flex items-center justify-between whitespace-nowrap border-b border-solid border-[var(--border-color)] bg-[var(--background-primary)] px-6 py-4 md:px-10">
+                    <div class="flex items-center gap-4 text-[var(--text-primary)]">
+                        <h2 class="text-[var(--text-primary)] text-xl font-semibold leading-tight tracking-[-0.015em]">
+                            <span class="font-bold">ShaiBha</span> Admin Panel
+                        </h2>
+                    </div>
+                    <div class="flex items-center gap-3">
             </div>
-            
-            <nav class="sidebar-nav">
-                <ul class="nav-list">
-                    <li class="nav-item">
-                        <a href="../index.php" class="nav-link">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-                                <polyline points="9,22 9,12 15,12 15,22"></polyline>
-                            </svg>
-                            <span>Dashboard</span>
+                </header>
+
+                <div class="flex flex-1">
+                    <!-- Sidebar -->
+                    <aside class="frosted-glass sticky top-[73px] h-[calc(100vh-73px)] w-64 flex-col justify-between border-r border-solid border-[var(--border-color)] bg-[var(--background-primary)] p-4 hidden md:flex sidebar-glow-effect rounded-r-xl">
+                        <nav class="flex flex-col gap-2">
+                            <a class="sidebar-item flex items-center gap-3 px-3 py-2.5 text-[var(--text-primary)] transition-colors duration-200" href="../index.php">
+                                <span class="material-icons-outlined text-xl">dashboard</span>
+                                <p class="text-sm font-medium">Dashboard</p>
                         </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="../products/index.php" class="nav-link">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
-                                <line x1="3" y1="6" x2="21" y2="6"></line>
-                                <path d="M16 10a4 4 0 0 1-8 0"></path>
-                            </svg>
-                            <span>Products</span>
+                            <a class="sidebar-item flex items-center gap-3 px-3 py-2.5 text-[var(--text-primary)] transition-colors duration-200" href="../orders/index.php">
+                                <span class="material-icons-outlined text-xl">list_alt</span>
+                                <p class="text-sm font-medium">Orders</p>
                         </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="../orders/index.php" class="nav-link">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
-                                <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
-                            </svg>
-                            <span>Orders</span>
+                            <a class="sidebar-item flex items-center gap-3 px-3 py-2.5 text-[var(--text-primary)] transition-colors duration-200" href="../products/index.php">
+                                <span class="material-icons-outlined text-xl">inventory_2</span>
+                                <p class="text-sm font-medium">Products</p>
                         </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="index.php" class="nav-link active">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                                <circle cx="12" cy="7" r="4"></circle>
-                            </svg>
-                            <span>Customers</span>
+                            <a class="sidebar-item flex items-center gap-3 px-3 py-2.5 text-[var(--text-primary)] transition-colors duration-200 active" href="index.php">
+                                <span class="material-icons-outlined text-xl">group</span>
+                                <p class="text-sm font-medium">Customers</p>
                         </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="../reports/sales.php" class="nav-link">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <line x1="18" y1="20" x2="18" y2="10"></line>
-                                <line x1="12" y1="20" x2="12" y2="4"></line>
-                                <line x1="6" y1="20" x2="6" y2="14"></line>
-                                <line x1="3" y1="20" x2="21" y2="20"></line>
-                            </svg>
-                            <span>Reports</span>
+                            <a class="sidebar-item flex items-center gap-3 px-3 py-2.5 text-[var(--text-primary)] transition-colors duration-200" href="../reports/sales.php">
+                                <span class="material-icons-outlined text-xl">bar_chart</span>
+                                <p class="text-sm font-medium">Reports</p>
                         </a>
-                    </li>
-                </ul>
             </nav>
-            
-            <div class="sidebar-footer">
-                <a href="../logout.php" class="logout-btn">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-                        <polyline points="16 17 21 12 16 7"></polyline>
-                        <line x1="21" y1="12" x2="9" y2="12"></line>
-                    </svg>
-                    <span>Logout</span>
+                        <div class="flex flex-col gap-1 pt-4 border-t border-[var(--border-color)] mt-auto">
+                            <a class="sidebar-item flex items-center gap-3 px-3 py-2.5 text-[var(--text-primary)] transition-colors duration-200" href="../logout.php">
+                                <span class="material-icons-outlined text-xl">logout</span>
+                                <p class="text-sm font-medium">Logout</p>
                 </a>
             </div>
         </aside>
 
         <!-- Main Content -->
-        <main class="admin-main">
-            <!-- Header -->
-            <header class="admin-header">
-                <div class="header-content">
-                    <h1 class="page-title">Customer Management</h1>
-                </div>
-            </header>
-
-            <!-- Customers Content -->
-            <div class="admin-content">
-                <!-- Filters -->
-                <div class="filters-section">
-                    <form method="GET" class="filters-form">
-                        <div class="filter-group">
-                            <label for="search">Search</label>
-                            <input type="text" id="search" name="search" value="<?php echo htmlspecialchars($search); ?>" placeholder="Name, email, phone...">
-                        </div>
-                        
-                        <div class="filter-group">
-                            <label for="status">Status</label>
-                            <select id="status" name="status">
-                                <option value="">All Statuses</option>
+                    <main class="flex-1 p-6 md:p-10 overflow-y-auto">
+                        <div class="flex flex-wrap justify-between items-center gap-4 p-4">
+                            <h1 class="text-[var(--text-primary)] tracking-tight text-3xl sm:text-4xl font-bold">All Customers</h1>
+                            <div class="flex gap-2">
+                                <form method="GET" class="flex flex-wrap gap-2">
+                                    <select name="status" class="form-select rounded-lg border-none bg-[rgba(48,48,48,0.7)] text-[var(--text-secondary)] text-sm focus:ring-2 focus:ring-[var(--accent-primary)] focus:border-[var(--accent-primary)]" onchange="this.form.submit()">
+                                        <option value="">Filter by Status</option>
                                 <option value="active" <?php echo $status === 'active' ? 'selected' : ''; ?>>Active</option>
                                 <option value="inactive" <?php echo $status === 'inactive' ? 'selected' : ''; ?>>Inactive</option>
                             </select>
+                                    
+                                    <?php if ($search): ?>
+                                        <input type="hidden" name="search" value="<?php echo htmlspecialchars($search); ?>">
+                                    <?php endif; ?>
+                                    
+                                    <?php if ($sort && $sort !== 'created_at'): ?>
+                                        <input type="hidden" name="sort" value="<?php echo htmlspecialchars($sort); ?>">
+                                    <?php endif; ?>
+                                    
+                                    <?php if ($order && $order !== 'desc'): ?>
+                                        <input type="hidden" name="order" value="<?php echo htmlspecialchars($order); ?>">
+                                    <?php endif; ?>
+                                </form>
                         </div>
-                        
-                        <div class="filter-actions">
-                            <button type="submit" class="btn btn-primary">Filter</button>
-                            <a href="index.php" class="btn btn-outline">Reset</a>
                         </div>
-                    </form>
+                        <div class="px-4 py-3">
+                            <form method="GET">
+                                <label class="flex flex-col min-w-40 h-12 w-full">
+                                    <div class="relative w-full flex">
+                                        <div class="text-[var(--text-tertiary)] flex items-center justify-center pl-4 absolute left-0" data-icon="MagnifyingGlass" data-size="24px" data-weight="regular">
+                                            <svg fill="currentColor" height="20px" viewBox="0 0 256 256" width="20px" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M229.66,218.34l-50.07-50.06a88.11,88.11,0,1,0-11.31,11.31l50.06,50.07a8,8,0,0,0,11.32-11.32ZM40,112a72,72,0,1,1,72,72A72.08,72.08,0,0,1,40,112Z"></path>
+                                            </svg>
                 </div>
-
-                <!-- Customers Table -->
-                <div class="table-section">
-                    <div class="table-header">
-                        <h2>Customers (<?php echo $total_customers; ?>)</h2>
-                    </div>
-                    
-                    <div class="table-container">
-                        <table class="data-table">
-                            <thead>
-                                <tr>
-                                    <th data-sort="first_name">
-                                        Name
-                                        <?php if ($sort === 'first_name'): ?>
-                                            <span class="sort-indicator"><?php echo $order === 'ASC' ? '↑' : '↓'; ?></span>
+                                        <input name="search" class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-xl text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-white/50 border border-[var(--border-color)] bg-[rgba(48,48,48,0.7)] h-full placeholder:text-[var(--text-tertiary)] pl-10 pr-4 text-sm font-normal leading-normal" placeholder="Search customers by name, email..." value="<?php echo htmlspecialchars($search); ?>"/>
+                                    
+                                        <?php if ($status): ?>
+                                            <input type="hidden" name="status" value="<?php echo htmlspecialchars($status); ?>">
                                         <?php endif; ?>
-                                    </th>
-                                    <th data-sort="email">
-                                        Email
-                                        <?php if ($sort === 'email'): ?>
-                                            <span class="sort-indicator"><?php echo $order === 'ASC' ? '↑' : '↓'; ?></span>
+                                        
+                                        <?php if ($sort && $sort !== 'created_at'): ?>
+                                            <input type="hidden" name="sort" value="<?php echo htmlspecialchars($sort); ?>">
                                         <?php endif; ?>
-                                    </th>
-                                    <th>Phone</th>
-                                    <th data-sort="created_at">
-                                        Registered
-                                        <?php if ($sort === 'created_at'): ?>
-                                            <span class="sort-indicator"><?php echo $order === 'ASC' ? '↑' : '↓'; ?></span>
+                                        
+                                        <?php if ($order && $order !== 'desc'): ?>
+                                            <input type="hidden" name="order" value="<?php echo htmlspecialchars($order); ?>">
                                         <?php endif; ?>
+                                    </div>
+                                </label>
+                            </form>
+                        </div>
+                        <div class="px-4 py-3 @container">
+                            <div class="hidden @[640px]:block overflow-hidden rounded-xl border border-[var(--border-color)] frosted-glass">
+                                <table class="w-full text-sm">
+                                    <thead>
+                                        <tr class="bg-[var(--background-secondary)] bg-opacity-50">
+                                            <th class="px-4 py-3 text-left text-[var(--text-secondary)] font-semibold">
+                                                <a href="?sort=first_name&order=<?php echo ($sort === 'first_name' && $order === 'ASC') ? 'DESC' : 'ASC'; ?><?php echo $status ? '&status=' . htmlspecialchars($status) : ''; ?><?php echo $search ? '&search=' . htmlspecialchars($search) : ''; ?>" class="flex items-center">
+                                                    Name
+                                                    <?php if ($sort === 'first_name'): ?>
+                                                        <span class="ml-1"><?php echo $order === 'ASC' ? '↑' : '↓'; ?></span>
+                                                    <?php endif; ?>
+                                                </a>
                                     </th>
-                                    <th data-sort="last_login">
-                                        Last Login
-                                        <?php if ($sort === 'last_login'): ?>
-                                            <span class="sort-indicator"><?php echo $order === 'ASC' ? '↑' : '↓'; ?></span>
+                                            <th class="px-4 py-3 text-left text-[var(--text-secondary)] font-semibold">
+                                                <a href="?sort=email&order=<?php echo ($sort === 'email' && $order === 'ASC') ? 'DESC' : 'ASC'; ?><?php echo $status ? '&status=' . htmlspecialchars($status) : ''; ?><?php echo $search ? '&search=' . htmlspecialchars($search) : ''; ?>" class="flex items-center">
+                                                    Email
+                                                    <?php if ($sort === 'email'): ?>
+                                                        <span class="ml-1"><?php echo $order === 'ASC' ? '↑' : '↓'; ?></span>
                                         <?php endif; ?>
+                                                </a>
                                     </th>
-                                    <th data-sort="status">
-                                        Status
-                                        <?php if ($sort === 'status'): ?>
-                                            <span class="sort-indicator"><?php echo $order === 'ASC' ? '↑' : '↓'; ?></span>
+                                            <th class="px-4 py-3 text-left text-[var(--text-secondary)] font-semibold">
+                                                <a href="?sort=created_at&order=<?php echo ($sort === 'created_at' && $order === 'ASC') ? 'DESC' : 'ASC'; ?><?php echo $status ? '&status=' . htmlspecialchars($status) : ''; ?><?php echo $search ? '&search=' . htmlspecialchars($search) : ''; ?>" class="flex items-center">
+                                                    Join Date
+                                                    <?php if ($sort === 'created_at'): ?>
+                                                        <span class="ml-1"><?php echo $order === 'ASC' ? '↑' : '↓'; ?></span>
                                         <?php endif; ?>
+                                                </a>
                                     </th>
-                                    <th>Actions</th>
+                                            <th class="px-4 py-3 text-left text-[var(--text-secondary)] font-semibold">Orders</th>
+                                            <th class="px-4 py-3 text-left text-[var(--text-secondary)] font-semibold">Actions</th>
                                 </tr>
                             </thead>
-                            <tbody>
+                                    <tbody class="divide-y divide-[var(--border-color)]">
                                 <?php if (!empty($customers)): ?>
                                     <?php foreach ($customers as $customer): ?>
-                                        <tr>
-                                            <td>
-                                                <div class="customer-name">
-                                                    <a href="view.php?id=<?php echo $customer['id']; ?>">
-                                                        <?php echo htmlspecialchars($customer['first_name'] . ' ' . $customer['last_name']); ?>
-                                                    </a>
-                                                </div>
-                                            </td>
-                                            <td><?php echo htmlspecialchars($customer['email']); ?></td>
-                                            <td><?php echo htmlspecialchars($customer['phone'] ?: 'N/A'); ?></td>
-                                            <td><?php echo date('M j, Y', strtotime($customer['created_at'])); ?></td>
-                                            <td>
-                                                <?php echo $customer['last_login'] ? date('M j, Y', strtotime($customer['last_login'])) : 'Never'; ?>
-                                            </td>
-                                            <td>
-                                                <span class="status-badge status-<?php echo $customer['status']; ?>">
-                                                    <?php echo ucfirst($customer['status']); ?>
-                                                </span>
-                                            </td>
-                                            <td>
-                                                <div class="table-actions">
-                                                    <a href="view.php?id=<?php echo $customer['id']; ?>" class="action-btn view-btn" title="View Customer">
-                                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                                                            <circle cx="12" cy="12" r="3"></circle>
-                                                        </svg>
-                                                    </a>
-                                                    <a href="toggle-status.php?id=<?php echo $customer['id']; ?>&status=<?php echo $customer['status'] === 'active' ? 'inactive' : 'active'; ?>" class="action-btn <?php echo $customer['status'] === 'active' ? 'delete-btn' : 'edit-btn'; ?>" title="<?php echo $customer['status'] === 'active' ? 'Deactivate' : 'Activate'; ?> Customer">
-                                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                            <?php if ($customer['status'] === 'active'): ?>
-                                                                <path d="M18 6L6 18"></path>
-                                                                <path d="M6 6l12 12"></path>
-                                                            <?php else: ?>
-                                                                <path d="M9 12l2 2 4-4"></path>
-                                                                <circle cx="12" cy="12" r="10"></circle>
-                                                            <?php endif; ?>
-                                                        </svg>
-                                                    </a>
-                                                </div>
+                                                <tr class="hover:bg-[var(--background-secondary)] hover:bg-opacity-30 transition-colors">
+                                                    <td class="px-4 py-3 text-[var(--text-primary)]"><?php echo htmlspecialchars($customer['first_name'] . ' ' . $customer['last_name']); ?></td>
+                                                    <td class="px-4 py-3 text-[var(--text-tertiary)]"><?php echo htmlspecialchars($customer['email']); ?></td>
+                                                    <td class="px-4 py-3 text-[var(--text-tertiary)]"><?php echo date('Y-m-d', strtotime($customer['created_at'])); ?></td>
+                                                    <td class="px-4 py-3 text-[var(--text-tertiary)] text-center"><?php echo $customer_orders[$customer['id']] ?? 0; ?></td>
+                                                    <td class="px-4 py-3 text-[var(--text-tertiary)]">
+                                                        <a href="view.php?id=<?php echo $customer['id']; ?>" class="text-[var(--accent-primary)] hover:underline text-xs">View</a>
                                             </td>
                                         </tr>
                                     <?php endforeach; ?>
                                 <?php else: ?>
                                     <tr>
-                                        <td colspan="7" class="no-data">No customers found</td>
+                                                <td colspan="5" class="px-4 py-3 text-center text-[var(--text-tertiary)]">No customers found</td>
                                     </tr>
                                 <?php endif; ?>
                             </tbody>
                         </table>
                     </div>
+                            
+                            <!-- Mobile View -->
+                            <div class="grid grid-cols-1 @[480px]:grid-cols-2 gap-4 @[640px]:hidden">
+                                <?php if (!empty($customers)): ?>
+                                    <?php foreach ($customers as $customer): ?>
+                                        <div class="rounded-xl border border-[var(--border-color)] p-4 frosted-glass space-y-2">
+                                            <div class="flex justify-between items-start">
+                                                <h3 class="text-lg font-semibold text-[var(--text-primary)]"><?php echo htmlspecialchars($customer['first_name'] . ' ' . $customer['last_name']); ?></h3>
+                                                <a href="view.php?id=<?php echo $customer['id']; ?>" class="text-[var(--accent-primary)] hover:underline text-xs mt-1">View Details</a>
+                                            </div>
+                                            <p class="text-sm text-[var(--text-tertiary)]"><?php echo htmlspecialchars($customer['email']); ?></p>
+                                            <div class="flex justify-between text-xs text-[var(--text-tertiary)] pt-1">
+                                                <span>Joined: <span class="text-[var(--text-secondary)]"><?php echo date('Y-m-d', strtotime($customer['created_at'])); ?></span></span>
+                                                <span>Orders: <span class="text-[var(--text-secondary)]"><?php echo $customer_orders[$customer['id']] ?? 0; ?></span></span>
+                                            </div>
+                                        </div>
+                                    <?php endforeach; ?>
+                                <?php else: ?>
+                                    <div class="rounded-xl border border-[var(--border-color)] p-4 frosted-glass col-span-2 text-center text-[var(--text-tertiary)]">
+                                        No customers found
+                                    </div>
+                                <?php endif; ?>
+                    </div>
                     
                     <!-- Pagination -->
                     <?php if ($total_pages > 1): ?>
-                        <div class="pagination">
+                                <div class="mt-6 flex justify-center">
+                                    <div class="flex space-x-1">
                             <?php if ($page > 1): ?>
-                                <a href="?page=<?php echo $page - 1; ?>&sort=<?php echo $sort; ?>&order=<?php echo $order; ?>&status=<?php echo $status; ?>&search=<?php echo urlencode($search); ?>" class="pagination-link">
+                                            <a href="?page=<?php echo $page - 1; ?><?php echo $status ? '&status=' . htmlspecialchars($status) : ''; ?><?php echo $search ? '&search=' . htmlspecialchars($search) : ''; ?><?php echo $sort && $sort !== 'created_at' ? '&sort=' . htmlspecialchars($sort) : ''; ?><?php echo $order && $order !== 'desc' ? '&order=' . htmlspecialchars($order) : ''; ?>" class="px-4 py-2 rounded-lg border border-[var(--border-color)] text-[var(--text-secondary)] hover:bg-[var(--background-secondary)] transition-colors">
                                     Previous
                                 </a>
                             <?php endif; ?>
                             
-                            <?php for ($i = 1; $i <= $total_pages; $i++): ?>
-                                <a href="?page=<?php echo $i; ?>&sort=<?php echo $sort; ?>&order=<?php echo $order; ?>&status=<?php echo $status; ?>&search=<?php echo urlencode($search); ?>" 
-                                   class="pagination-link <?php echo $i === $page ? 'active' : ''; ?>">
-                                    <?php echo $i; ?>
-                                </a>
-                            <?php endfor; ?>
-                            
                             <?php if ($page < $total_pages): ?>
-                                <a href="?page=<?php echo $page + 1; ?>&sort=<?php echo $sort; ?>&order=<?php echo $order; ?>&status=<?php echo $status; ?>&search=<?php echo urlencode($search); ?>" class="pagination-link">
+                                            <a href="?page=<?php echo $page + 1; ?><?php echo $status ? '&status=' . htmlspecialchars($status) : ''; ?><?php echo $search ? '&search=' . htmlspecialchars($search) : ''; ?><?php echo $sort && $sort !== 'created_at' ? '&sort=' . htmlspecialchars($sort) : ''; ?><?php echo $order && $order !== 'desc' ? '&order=' . htmlspecialchars($order) : ''; ?>" class="px-4 py-2 rounded-lg border border-[var(--border-color)] text-[var(--text-secondary)] hover:bg-[var(--background-secondary)] transition-colors">
                                     Next
                                 </a>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
                             <?php endif; ?>
                         </div>
-                    <?php endif; ?>
+                    </main>
                 </div>
             </div>
-        </main>
+        </div>
     </div>
-
-    <script src="../../js/admin.js"></script>
 </body>
 </html>

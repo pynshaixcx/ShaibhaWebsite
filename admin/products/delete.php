@@ -68,162 +68,130 @@ $token = generateCSRFToken();
 ?>
 
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Delete Product - ShaiBha Admin</title>
-    
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
-    <!-- Styles -->
-    <link rel="stylesheet" href="../../css/admin.css">
-    
-    <!-- Favicon -->
-    <link rel="icon" type="image/svg+xml" href="../../images/favicon.svg">
+    <meta charset="utf-8"/>
+    <link crossorigin="" href="https://fonts.gstatic.com/" rel="preconnect"/>
+    <link as="style" href="https://fonts.googleapis.com/css2?display=swap&family=Inter%3Awght%40400%3B500%3B600%3B700%3B900&family=Noto+Sans%3Awght%40400%3B500%3B700%3B900" onload="this.rel='stylesheet'" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet"/>
+    <title>ShaiBha Admin - Delete Product</title>
+    <link href="data:image/x-icon;base64," rel="icon" type="image/x-icon"/>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <style type="text/tailwindcss">
+      :root {
+        --background-primary: rgba(20, 20, 20, 0.7);
+        --background-secondary: rgba(48, 48, 48, 0.7);
+        --border-color: rgba(48, 48, 48, 0.9);
+        --text-primary: #ffffff;
+        --text-secondary: #ababab;
+        --blur-intensity: 10px;
+        --sidebar-glow: 0 0 20px 5px rgba(128, 128, 255, 0.2);
+      }
+      .frosted-glass {
+        backdrop-filter: blur(var(--blur-intensity));
+        -webkit-backdrop-filter: blur(var(--blur-intensity));
+      }
+      .sidebar-item:hover, .sidebar-item.active {
+        background-color: var(--background-secondary) !important;
+        border-radius: 0.5rem;
+      }
+      .icon-button:hover {
+        background-color: rgba(75, 75, 75, 0.7) !important;
+      }
+      .sidebar-glow-effect {
+        box-shadow: var(--sidebar-glow);
+          }
+        </style>
 </head>
-<body>
-    <div class="admin-layout">
-        <!-- Sidebar -->
-        <aside class="admin-sidebar">
-            <div class="sidebar-header">
-                <h1 class="sidebar-logo">ShaiBha</h1>
-                <p class="sidebar-subtitle">Admin Panel</p>
+<body class="bg-gradient-to-br from-black via-slate-900 to-black">
+<div class="relative flex size-full min-h-screen flex-col bg-cover bg-center bg-fixed" style='font-family: Inter, "Noto Sans", sans-serif;'>
+<div class="relative flex size-full min-h-screen flex-col dark group/design-root">
+<div class="layout-container flex h-full grow flex-col">
+<header class="frosted-glass sticky top-0 z-50 flex items-center justify-between whitespace-nowrap border-b border-solid border-[var(--border-color)] bg-[var(--background-primary)] px-6 py-4 md:px-10">
+<div class="flex items-center gap-4 text-[var(--text-primary)]">
+<h2 class="text-xl font-semibold leading-tight tracking-[-0.015em]">
+<span class="font-bold">ShaiBha</span> Admin Panel
+</h2>
+</div>
+<div class="flex items-center gap-3">
             </div>
-            
-            <nav class="sidebar-nav">
-                <ul class="nav-list">
-                    <li class="nav-item">
-                        <a href="../index.php" class="nav-link">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-                                <polyline points="9,22 9,12 15,12 15,22"></polyline>
-                            </svg>
-                            <span>Dashboard</span>
+</header>
+
+<div class="flex flex-1">
+<!-- Sidebar -->
+<aside class="frosted-glass sticky top-[73px] h-[calc(100vh-73px)] w-64 flex-col justify-between border-r border-solid border-[var(--border-color)] bg-[var(--background-primary)] p-4 hidden md:flex sidebar-glow-effect rounded-r-xl">
+<nav class="flex flex-col gap-2">
+<a class="sidebar-item flex items-center gap-3 px-3 py-2.5 text-[var(--text-primary)] transition-colors duration-200" href="../index.php">
+<span class="material-icons-outlined text-xl">dashboard</span>
+<p class="text-sm font-medium">Dashboard</p>
                         </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="index.php" class="nav-link active">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
-                                <line x1="3" y1="6" x2="21" y2="6"></line>
-                                <path d="M16 10a4 4 0 0 1-8 0"></path>
-                            </svg>
-                            <span>Products</span>
+<a class="sidebar-item flex items-center gap-3 px-3 py-2.5 text-[var(--text-primary)] transition-colors duration-200" href="../orders/index.php">
+<span class="material-icons-outlined text-xl">list_alt</span>
+<p class="text-sm font-medium">Orders</p>
+</a>
+<a class="sidebar-item active flex items-center gap-3 px-3 py-2.5 text-[var(--text-primary)] transition-colors duration-200" href="index.php">
+<span class="material-icons-outlined text-xl">inventory_2</span>
+<p class="text-sm font-medium">Products</p>
                         </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="../orders/index.php" class="nav-link">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
-                                <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
-                            </svg>
-                            <span>Orders</span>
+<a class="sidebar-item flex items-center gap-3 px-3 py-2.5 text-[var(--text-primary)] transition-colors duration-200" href="../customers/index.php">
+<span class="material-icons-outlined text-xl">group</span>
+<p class="text-sm font-medium">Customers</p>
                         </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="../customers/index.php" class="nav-link">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                                <circle cx="12" cy="7" r="4"></circle>
-                            </svg>
-                            <span>Customers</span>
+<a class="sidebar-item flex items-center gap-3 px-3 py-2.5 text-[var(--text-primary)] transition-colors duration-200" href="../reports/sales.php">
+<span class="material-icons-outlined text-xl">bar_chart</span>
+<p class="text-sm font-medium">Reports</p>
                         </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="../reports/sales.php" class="nav-link">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <line x1="18" y1="20" x2="18" y2="10"></line>
-                                <line x1="12" y1="20" x2="12" y2="4"></line>
-                                <line x1="6" y1="20" x2="6" y2="14"></line>
-                                <line x1="3" y1="20" x2="21" y2="20"></line>
-                            </svg>
-                            <span>Reports</span>
-                        </a>
-                    </li>
-                </ul>
             </nav>
-            
-            <div class="sidebar-footer">
-                <a href="../logout.php" class="logout-btn">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-                        <polyline points="16 17 21 12 16 7"></polyline>
-                        <line x1="21" y1="12" x2="9" y2="12"></line>
-                    </svg>
-                    <span>Logout</span>
+<div class="flex flex-col gap-1 pt-4 border-t border-[var(--border-color)] mt-auto">
+<a class="sidebar-item flex items-center gap-3 px-3 py-2.5 text-[var(--text-primary)] transition-colors duration-200" href="../logout.php">
+<span class="material-icons-outlined text-xl">logout</span>
+<p class="text-sm font-medium">Logout</p>
                 </a>
             </div>
         </aside>
 
         <!-- Main Content -->
-        <main class="admin-main">
-            <!-- Header -->
-            <header class="admin-header">
-                <div class="header-content">
-                    <h1 class="page-title">Delete Product</h1>
-                    <div class="header-actions">
-                        <a href="index.php" class="btn btn-outline">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <line x1="19" y1="12" x2="5" y2="12"></line>
-                                <polyline points="12 19 5 12 12 5"></polyline>
-                            </svg>
-                            Back to Products
-                        </a>
-                    </div>
-                </div>
-            </header>
-
-            <!-- Delete Product Content -->
-            <div class="admin-content">
-                <div class="delete-confirmation">
-                    <div class="confirmation-icon">
-                        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="12" cy="12" r="10"></circle>
-                            <line x1="12" y1="8" x2="12" y2="12"></line>
-                            <line x1="12" y1="16" x2="12.01" y2="16"></line>
-                        </svg>
-                    </div>
+<main class="flex-1 p-6 md:p-10 overflow-y-auto flex items-center justify-center">
+<div class="frosted-glass flex w-full max-w-md flex-col items-center rounded-xl border border-[var(--border-color)] p-8 shadow-2xl bg-[var(--background-secondary)]">
+<h3 class="text-center text-xl font-semibold leading-tight tracking-tight text-[var(--text-primary)] sm:text-2xl">
+    <?php if ($in_orders > 0): ?>
+        Are you sure you want to deactivate this product?
+    <?php else: ?>
+        Are you sure you want to delete this product?
+    <?php endif; ?>
+</h3>
                     
-                    <h2>Delete Product</h2>
-                    
-                    <div class="product-info">
-                        <div class="product-image">
-                            <img src="https://images.pexels.com/photos/1536619/pexels-photo-1536619.jpeg" alt="<?php echo htmlspecialchars($product['name']); ?>">
-                        </div>
-                        <div class="product-details">
-                            <h3><?php echo htmlspecialchars($product['name']); ?></h3>
-                            <p class="product-sku">SKU: <?php echo htmlspecialchars($product['sku']); ?></p>
-                            <p class="product-price">Price: <?php echo formatPrice($product['price']); ?></p>
-                        </div>
+<div class="mt-4 text-center">
+    <p class="text-[var(--text-primary)] font-medium"><?php echo htmlspecialchars($product['name']); ?></p>
+    <p class="text-[var(--text-secondary)]">SKU: <?php echo htmlspecialchars($product['sku']); ?></p>
+    <p class="text-[var(--text-secondary)]">Price: <?php echo formatPrice($product['price']); ?></p>
                     </div>
                     
                     <?php if ($in_orders > 0): ?>
-                        <div class="alert alert-warning">
+    <div class="mt-4 w-full rounded-lg bg-yellow-500/20 p-3 text-yellow-300 text-sm">
                             <p><strong>Warning:</strong> This product is associated with <?php echo $in_orders; ?> order(s).</p>
                             <p>Instead of deleting, the product will be marked as inactive.</p>
                         </div>
                     <?php else: ?>
-                        <div class="alert alert-danger">
+    <div class="mt-4 w-full rounded-lg bg-red-500/20 p-3 text-red-300 text-sm">
                             <p><strong>Warning:</strong> This action cannot be undone.</p>
                             <p>All product data, including images, will be permanently deleted.</p>
                         </div>
                     <?php endif; ?>
                     
-                    <div class="confirmation-actions">
-                        <a href="delete.php?id=<?php echo $product_id; ?>&confirm=yes&token=<?php echo $token; ?>" class="btn btn-danger">
-                            <?php echo $in_orders > 0 ? 'Deactivate Product' : 'Delete Product'; ?>
-                        </a>
-                        <a href="index.php" class="btn btn-outline">Cancel</a>
-                    </div>
+<div class="mt-8 flex w-full flex-col gap-4 sm:flex-row sm:justify-center">
+<a href="index.php" class="flex h-11 min-w-[84px] flex-1 cursor-pointer items-center justify-center overflow-hidden rounded-lg border border-[var(--border-color)] bg-transparent px-6 text-sm font-medium text-[var(--text-secondary)] hover:bg-[var(--background-primary)] focus:outline-none focus:ring-2 focus:ring-white/20 focus:ring-offset-2 focus:ring-offset-black sm:flex-initial">
+    <span class="truncate">Cancel</span>
+</a>
+<a href="delete.php?id=<?php echo $product_id; ?>&confirm=yes&token=<?php echo $token; ?>" class="flex h-11 min-w-[84px] flex-1 cursor-pointer items-center justify-center overflow-hidden rounded-lg bg-red-600 px-6 text-sm font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-black sm:flex-initial">
+    <span class="truncate"><?php echo $in_orders > 0 ? 'Deactivate' : 'Delete'; ?></span>
+</a>
                 </div>
             </div>
         </main>
     </div>
-
-    <script src="../../js/admin.js"></script>
+    </div>
+    </div>
+    </div>
 </body>
 </html>

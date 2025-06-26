@@ -87,178 +87,153 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&family=Noto+Sans:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
     
-    <!-- Styles -->
-    <link rel="stylesheet" href="../../css/admin.css">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="../../images/favicon.svg">
+    
+    <style type="text/tailwindcss">
+        :root {
+            --background-primary: rgba(20, 20, 20, 0.7);
+            --background-secondary: rgba(48, 48, 48, 0.7);
+            --border-color: rgba(48, 48, 48, 0.9);
+            --text-primary: #ffffff;
+            --text-secondary: #ababab;
+            --blur-intensity: 10px;
+            --sidebar-glow: 0 0 20px 5px rgba(128, 128, 255, 0.2);
+        }
+        .frosted-glass {
+            backdrop-filter: blur(var(--blur-intensity));
+            -webkit-backdrop-filter: blur(var(--blur-intensity));
+        }
+        .sidebar-item:hover, .sidebar-item.active {
+            background-color: var(--background-secondary) !important;
+            border-radius: 0.5rem;
+        }
+        .icon-button:hover {
+            background-color: rgba(75, 75, 75, 0.7) !important;
+        }
+        .sidebar-glow-effect {
+            box-shadow: var(--sidebar-glow);
+        }
+        .form-input {
+            @apply frosted-glass w-full rounded-lg border border-[var(--border-color)] bg-[var(--background-primary)] px-4 py-2 text-[var(--text-primary)] focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500;
+        }
+        .btn {
+            @apply flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition-colors duration-200;
+        }
+        .btn-primary {
+            @apply frosted-glass bg-white/10 text-[var(--text-primary)] hover:bg-white/20;
+        }
+        .btn-outline {
+            @apply frosted-glass bg-[var(--background-secondary)] text-[var(--text-primary)] hover:bg-white/10;
+        }
+    </style>
 </head>
-<body>
-    <div class="admin-layout">
-        <!-- Sidebar -->
-        <aside class="admin-sidebar">
-            <div class="sidebar-header">
-                <h1 class="sidebar-logo">ShaiBha</h1>
-                <p class="sidebar-subtitle">Admin Panel</p>
+<body class="bg-gradient-to-br from-black via-slate-900 to-black">
+<div class="relative flex size-full min-h-screen flex-col bg-cover bg-center bg-fixed" style='font-family: Inter, "Noto Sans", sans-serif;'>
+<div class="relative flex size-full min-h-screen flex-col dark group/design-root overflow-x-hidden">
+<div class="layout-container flex h-full grow flex-col">
+<header class="frosted-glass sticky top-0 z-50 flex items-center justify-between whitespace-nowrap border-b border-solid border-[var(--border-color)] bg-[var(--background-primary)] px-6 py-4 md:px-10">
+    <div class="flex items-center gap-4 text-[var(--text-primary)]">
+        <h2 class="text-xl font-semibold leading-tight tracking-[-0.015em]">
+            <span class="font-bold">ShaiBha</span> Admin Panel
+        </h2>
+    </div>
+    <div class="flex items-center gap-3">
             </div>
-            
-            <nav class="sidebar-nav">
-                <ul class="nav-list">
-                    <li class="nav-item">
-                        <a href="../index.php" class="nav-link">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-                                <polyline points="9,22 9,12 15,12 15,22"></polyline>
-                            </svg>
-                            <span>Dashboard</span>
+</header>
+
+<div class="flex flex-1">
+    <!-- Sidebar -->
+    <aside class="frosted-glass sticky top-[73px] h-[calc(100vh-73px)] w-64 flex-col justify-between border-r border-solid border-[var(--border-color)] bg-[var(--background-primary)] p-4 hidden md:flex sidebar-glow-effect rounded-r-xl">
+        <nav class="flex flex-col gap-2">
+            <a class="sidebar-item flex items-center gap-3 px-3 py-2.5 text-[var(--text-primary)] transition-colors duration-200" href="../index.php">
+                <span class="material-icons-outlined text-xl">dashboard</span>
+                <p class="text-sm font-medium">Dashboard</p>
                         </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="../products/index.php" class="nav-link">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
-                                <line x1="3" y1="6" x2="21" y2="6"></line>
-                                <path d="M16 10a4 4 0 0 1-8 0"></path>
-                            </svg>
-                            <span>Products</span>
+            <a class="sidebar-item active flex items-center gap-3 px-3 py-2.5 text-[var(--text-primary)] transition-colors duration-200" href="index.php">
+                <span class="material-icons-outlined text-xl">list_alt</span>
+                <p class="text-sm font-medium">Orders</p>
                         </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="index.php" class="nav-link active">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
-                                <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
-                            </svg>
-                            <span>Orders</span>
+            <a class="sidebar-item flex items-center gap-3 px-3 py-2.5 text-[var(--text-primary)] transition-colors duration-200" href="../products/index.php">
+                <span class="material-icons-outlined text-xl">inventory_2</span>
+                <p class="text-sm font-medium">Products</p>
                         </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="../customers/index.php" class="nav-link">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                                <circle cx="12" cy="7" r="4"></circle>
-                            </svg>
-                            <span>Customers</span>
+            <a class="sidebar-item flex items-center gap-3 px-3 py-2.5 text-[var(--text-primary)] transition-colors duration-200" href="../customers/index.php">
+                <span class="material-icons-outlined text-xl">group</span>
+                <p class="text-sm font-medium">Customers</p>
                         </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="../reports/sales.php" class="nav-link">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <line x1="18" y1="20" x2="18" y2="10"></line>
-                                <line x1="12" y1="20" x2="12" y2="4"></line>
-                                <line x1="6" y1="20" x2="6" y2="14"></line>
-                                <line x1="3" y1="20" x2="21" y2="20"></line>
-                            </svg>
-                            <span>Reports</span>
+            <a class="sidebar-item flex items-center gap-3 px-3 py-2.5 text-[var(--text-primary)] transition-colors duration-200" href="../reports/sales.php">
+                <span class="material-icons-outlined text-xl">bar_chart</span>
+                <p class="text-sm font-medium">Reports</p>
                         </a>
-                    </li>
-                </ul>
             </nav>
-            
-            <div class="sidebar-footer">
-                <a href="../logout.php" class="logout-btn">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-                        <polyline points="16 17 21 12 16 7"></polyline>
-                        <line x1="21" y1="12" x2="9" y2="12"></line>
-                    </svg>
-                    <span>Logout</span>
+        <div class="flex flex-col gap-1 pt-4 border-t border-[var(--border-color)] mt-auto">
+            <a class="sidebar-item flex items-center gap-3 px-3 py-2.5 text-[var(--text-primary)] transition-colors duration-200" href="../logout.php">
+                <span class="material-icons-outlined text-xl">logout</span>
+                <p class="text-sm font-medium">Logout</p>
                 </a>
             </div>
         </aside>
 
         <!-- Main Content -->
-        <main class="admin-main">
-            <!-- Header -->
-            <header class="admin-header">
-                <div class="header-content">
-                    <h1 class="page-title">Update Order Status</h1>
-                    <div class="header-actions">
-                        <a href="view.php?id=<?php echo $order_id; ?>" class="btn btn-outline">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <line x1="19" y1="12" x2="5" y2="12"></line>
-                                <polyline points="12 19 5 12 12 5"></polyline>
-                            </svg>
-                            Back to Order
+    <main class="flex-1 p-6 md:p-10 overflow-y-auto">
+        <div class="mb-8">
+            <div class="flex items-center justify-between">
+                <h1 class="text-[var(--text-primary)] text-3xl font-bold leading-tight">Update Order Status</h1>
+                <div class="flex gap-2">
+                    <a class="frosted-glass flex items-center gap-2 rounded-lg px-4 py-2 bg-[var(--background-secondary)] text-[var(--text-primary)] text-sm font-semibold transition-colors duration-200 hover:bg-white/10" href="view.php?id=<?php echo $order_id; ?>">
+                        <span class="material-icons-outlined">arrow_back</span>
+                        <span>Back to Order</span>
                         </a>
                     </div>
                 </div>
-            </header>
 
-            <!-- Update Status Content -->
-            <div class="admin-content">
                 <?php if ($error): ?>
-                    <div class="alert alert-error">
+                <div class="mt-4 p-4 rounded-xl bg-red-500/30 text-red-300">
                         <?php echo htmlspecialchars($error); ?>
                     </div>
                 <?php endif; ?>
                 
                 <?php if ($success): ?>
-                    <div class="alert alert-success">
+                <div class="mt-4 p-4 rounded-xl bg-green-500/30 text-green-300">
                         <?php echo htmlspecialchars($success); ?>
                     </div>
                 <?php endif; ?>
                 
-                <div class="update-status-layout">
-                    <div class="order-summary-card">
-                        <h2>Order Summary</h2>
-                        <div class="order-summary">
-                            <div class="summary-row">
-                                <span class="summary-label">Order Number:</span>
-                                <span class="summary-value"><?php echo htmlspecialchars($order['order_number']); ?></span>
+            <div class="frosted-glass rounded-xl p-6 bg-[var(--background-secondary)] shadow-lg border border-[var(--border-color)] mt-6">
+                <div class="mb-6 flex items-center justify-between border-b border-[var(--border-color)] pb-4">
+                    <div>
+                        <h2 class="text-[var(--text-primary)] text-xl font-bold">Order #<?php echo htmlspecialchars($order['order_number']); ?></h2>
+                        <p class="text-[var(--text-secondary)] text-sm">Placed on: <?php echo date('F j, Y', strtotime($order['created_at'])); ?></p>
                             </div>
-                            <div class="summary-row">
-                                <span class="summary-label">Order Date:</span>
-                                <span class="summary-value"><?php echo date('M j, Y g:i A', strtotime($order['created_at'])); ?></span>
-                            </div>
-                            <div class="summary-row">
-                                <span class="summary-label">Customer:</span>
-                                <span class="summary-value">
-                                    <?php echo htmlspecialchars($order['billing_first_name'] . ' ' . $order['billing_last_name']); ?>
-                                </span>
-                            </div>
-                            <div class="summary-row">
-                                <span class="summary-label">Email:</span>
-                                <span class="summary-value"><?php echo htmlspecialchars($order['customer_email']); ?></span>
-                            </div>
-                            <div class="summary-row">
-                                <span class="summary-label">Phone:</span>
-                                <span class="summary-value"><?php echo htmlspecialchars($order['customer_phone']); ?></span>
-                            </div>
-                            <div class="summary-row">
-                                <span class="summary-label">Total Amount:</span>
-                                <span class="summary-value"><?php echo formatPrice($order['total_amount']); ?></span>
-                            </div>
-                            <div class="summary-row">
-                                <span class="summary-label">Current Status:</span>
-                                <span class="summary-value">
-                                    <span class="status-badge status-<?php echo $order['order_status']; ?>">
+                    <div class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full 
+                        <?php 
+                            switch($order['order_status']) {
+                                case 'pending': echo 'bg-yellow-500/30 text-yellow-300'; break;
+                                case 'confirmed': echo 'bg-blue-500/30 text-blue-300'; break;
+                                case 'processing': echo 'bg-purple-500/30 text-purple-300'; break;
+                                case 'shipped': echo 'bg-blue-500/30 text-blue-300'; break;
+                                case 'delivered': echo 'bg-green-500/30 text-green-300'; break;
+                                case 'cancelled': echo 'bg-red-500/30 text-red-300'; break;
+                                default: echo 'bg-gray-500/30 text-gray-300';
+                            }
+                        ?>">
                                         <?php echo ucfirst($order['order_status']); ?>
-                                    </span>
-                                </span>
-                            </div>
-                            <div class="summary-row">
-                                <span class="summary-label">Payment Status:</span>
-                                <span class="summary-value">
-                                    <span class="payment-badge payment-<?php echo $order['payment_status']; ?>">
-                                        <?php echo ucfirst($order['payment_status']); ?>
-                                    </span>
-                                </span>
-                            </div>
-                        </div>
                     </div>
-                    
-                    <div class="update-status-card">
-                        <h2>Update Status</h2>
-                        <form method="POST" class="update-status-form">
+                </div>
+
+                <form method="POST">
                             <input type="hidden" name="csrf_token" value="<?php echo generateCSRFToken(); ?>">
                             
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label for="order_status">Order Status</label>
-                                    <select id="order_status" name="order_status" required>
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-[var(--text-secondary)] mb-2" for="order_status">Order Status</label>
+                        <select class="form-input" id="order_status" name="order_status" required>
                                         <option value="pending" <?php echo $order['order_status'] === 'pending' ? 'selected' : ''; ?>>Pending</option>
                                         <option value="confirmed" <?php echo $order['order_status'] === 'confirmed' ? 'selected' : ''; ?>>Confirmed</option>
                                         <option value="processing" <?php echo $order['order_status'] === 'processing' ? 'selected' : ''; ?>>Processing</option>
@@ -268,37 +243,48 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                     </select>
                                 </div>
                                 
-                                <div class="form-group">
-                                    <label for="payment_status">Payment Status</label>
-                                    <select id="payment_status" name="payment_status" required>
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-[var(--text-secondary)] mb-2" for="payment_status">Payment Status</label>
+                        <select class="form-input" id="payment_status" name="payment_status" required>
                                         <option value="pending" <?php echo $order['payment_status'] === 'pending' ? 'selected' : ''; ?>>Pending</option>
                                         <option value="paid" <?php echo $order['payment_status'] === 'paid' ? 'selected' : ''; ?>>Paid</option>
                                         <option value="failed" <?php echo $order['payment_status'] === 'failed' ? 'selected' : ''; ?>>Failed</option>
                                     </select>
-                                </div>
                             </div>
                             
-                            <div class="form-group">
-                                <label for="tracking_number">Tracking Number</label>
-                                <input type="text" id="tracking_number" name="tracking_number" value="<?php echo htmlspecialchars($order['tracking_number'] ?? ''); ?>">
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-[var(--text-secondary)] mb-2" for="tracking_number">Tracking Number</label>
+                        <input type="text" id="tracking_number" name="tracking_number" class="form-input" value="<?php echo htmlspecialchars($order['tracking_number'] ?? ''); ?>">
                             </div>
                             
-                            <div class="form-group">
-                                <label for="admin_notes">Admin Notes</label>
-                                <textarea id="admin_notes" name="admin_notes" rows="4"><?php echo htmlspecialchars($order['admin_notes'] ?? ''); ?></textarea>
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-[var(--text-secondary)] mb-2" for="admin_notes">Admin Notes</label>
+                        <textarea class="form-input" id="admin_notes" name="admin_notes" rows="4" placeholder="Add any notes about this status update"><?php echo htmlspecialchars($order['admin_notes'] ?? ''); ?></textarea>
                             </div>
                             
-                            <div class="form-actions">
-                                <button type="submit" class="btn btn-primary">Update Status</button>
-                                <a href="view.php?id=<?php echo $order_id; ?>" class="btn btn-outline">Cancel</a>
+                    <div class="flex justify-end gap-3">
+                        <a class="btn btn-outline" href="view.php?id=<?php echo $order_id; ?>">
+                            <span class="material-icons-outlined">cancel</span>
+                            <span>Cancel</span>
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <span class="material-icons-outlined">check_circle</span>
+                            <span>Update Status</span>
+                        </button>
                             </div>
                         </form>
-                    </div>
                 </div>
             </div>
         </main>
     </div>
+</div>
+</div>
+</div>
 
-    <script src="../../js/admin.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Add any JavaScript functionality here
+});
+</script>
 </body>
 </html>

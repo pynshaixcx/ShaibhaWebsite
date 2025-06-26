@@ -66,85 +66,82 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 ?>
-
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo $page_title; ?> - ShaiBha Admin</title>
-    
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
-    <!-- Styles -->
-    <link rel="stylesheet" href="../css/admin.css">
-    
-    <!-- Favicon -->
-    <link rel="icon" type="image/svg+xml" href="../images/favicon.svg">
+  <meta charset="utf-8"/>
+  <link crossorigin="" href="https://fonts.gstatic.com/" rel="preconnect"/>
+  <link as="style" href="https://fonts.googleapis.com/css2?display=swap&family=Noto+Sans%3Awght%40400%3B500%3B700%3B900&family=Plus+Jakarta+Sans%3Awght%40400%3B500%3B600%3B700%3B800&family=Lexend%3Awght%40400%3B500%3B600%3B700" onload="this.rel='stylesheet'" rel="stylesheet"/>
+  <title>ShaiBha Login</title>
+  <link href="data:image/x-icon;base64," rel="icon" type="image/x-icon"/>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <style type="text/tailwindcss">
+        :root {
+          --primary-color: #ffffff;
+          --secondary-color: #141414;
+          --accent-color: #303030;
+          --text-primary: #ffffff;
+          --text-secondary: #ababab;
+          --card-background: rgba(48, 48, 48, 0.6);}
+        body {
+          font-family: 'Plus Jakarta Sans', 'Noto Sans', sans-serif;
+        }
+        .frosted-glass {
+          background: var(--card-background);
+          backdrop-filter: blur(15px);
+          -webkit-backdrop-filter: blur(15px);border: 1px solid rgba(255, 255, 255, 0.1);}
+      </style>
 </head>
-<body class="login-page">
-    <div class="admin-login">
-        <div class="login-container">
-            <div class="login-header">
-                <h1 class="login-logo">ShaiBha</h1>
-                <p class="login-subtitle">Admin Panel</p>
+  <body class="bg-[var(--secondary-color)] flex items-center justify-center min-h-screen p-4">
+  <div class="relative flex size-full min-h-screen flex-col bg-[var(--secondary-color)] dark group/design-root overflow-x-hidden items-center justify-center">
+  <div class="frosted-glass rounded-3xl p-8 md:p-12 shadow-2xl w-full max-w-md">
+  <div class="text-center mb-8">
+  <h1 class="text-[var(--primary-color)] text-4xl md:text-5xl font-bold" style="font-family: 'Lexend', sans-serif;">ShaiBha</h1>
             </div>
-            
-            <div class="login-card">
-                <h2>Sign In</h2>
-                <p>Enter your credentials to access the admin panel</p>
                 
                 <?php if ($error): ?>
-                    <div class="alert alert-error">
+  <div class="bg-red-500/30 text-red-300 p-4 rounded-xl mb-6 text-center">
                         <?php echo htmlspecialchars($error); ?>
                     </div>
                 <?php endif; ?>
                 
                 <?php if ($success): ?>
-                    <div class="alert alert-success">
+  <div class="bg-green-500/30 text-green-300 p-4 rounded-xl mb-6 text-center">
                         <?php echo htmlspecialchars($success); ?>
                     </div>
                 <?php endif; ?>
                 
-                <form method="POST" class="login-form">
-                    <div class="form-group">
-                        <label for="username">Username</label>
-                        <div class="input-with-icon">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                                <circle cx="12" cy="7" r="4"></circle>
-                            </svg>
-                            <input type="text" id="username" name="username" required 
-                                   value="<?php echo htmlspecialchars($_POST['username'] ?? ''); ?>"
-                                   placeholder="Enter your username">
+  <form class="space-y-6" method="POST">
+  <div>
+  <label class="sr-only" for="username">Username</label>
+  <input class="form-input w-full rounded-xl border-none bg-[var(--accent-color)] bg-opacity-70 text-[var(--text-primary)] placeholder:text-[var(--text-secondary)] focus:ring-2 focus:ring-[var(--primary-color)] focus:ring-opacity-50 h-14 p-4 text-base transition-all duration-300 ease-in-out" 
+         id="username" 
+         name="username" 
+         placeholder="Username" 
+         required 
+         type="text"
+         value="<?php echo htmlspecialchars($_POST['username'] ?? ''); ?>"/>
+  </div>
+  <div>
+  <label class="sr-only" for="password">Password</label>
+  <input class="form-input w-full rounded-xl border-none bg-[var(--accent-color)] bg-opacity-70 text-[var(--text-primary)] placeholder:text-[var(--text-secondary)] focus:ring-2 focus:ring-[var(--primary-color)] focus:ring-opacity-50 h-14 p-4 text-base transition-all duration-300 ease-in-out" 
+         id="password" 
+         name="password" 
+         placeholder="Password" 
+         required 
+         type="password"/>
+  </div>
+  <div>
+  <button class="w-full rounded-xl bg-[var(--primary-color)] text-[var(--secondary-color)] h-12 md:h-14 px-4 text-base md:text-lg font-semibold tracking-wide hover:bg-opacity-90 focus:outline-none focus:ring-2 focus:ring-[var(--primary-color)] focus:ring-offset-2 focus:ring-offset-[var(--secondary-color)] transition-all duration-300 ease-in-out" type="submit">
+                Login
+              </button>
+                        </div>
+  <div class="text-center mt-4">
+    <p class="text-[var(--text-secondary)] text-sm">Return to <a href="../index.php" class="text-[var(--primary-color)] hover:underline">Website</a></p>
+                    </div>
+  </form>
                         </div>
                     </div>
                     
-                    <div class="form-group">
-                        <label for="password">Password</label>
-                        <div class="input-with-icon">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-                                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-                            </svg>
-                            <input type="password" id="password" name="password" required 
-                                   placeholder="Enter your password">
-                        </div>
-                    </div>
-                    
-                    <button type="submit" class="btn btn-primary login-btn">
-                        Sign In
-                    </button>
-                </form>
-                
-                <div class="login-footer">
-                    <p>Return to <a href="../index.php">Website</a></p>
-                </div>
-            </div>
-        </div>
-    </div>
 </body>
 </html>

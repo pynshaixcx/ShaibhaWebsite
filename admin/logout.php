@@ -1,52 +1,64 @@
 <?php
+$page_title = "Admin Logout";
 require_once '../includes/functions.php';
 
-// Log activity if admin is logged in
+// Check if admin is logged in
 if (isAdminLoggedIn()) {
     $admin_id = getCurrentAdminId();
+    
+    // Log activity
     logActivity('admin', $admin_id, 'logout', 'Admin logged out');
+
+    // Clear admin session
+    unset($_SESSION['admin_id']);
+    unset($_SESSION['admin_name']);
+    unset($_SESSION['admin_role']);
+    
+    // Regenerate session for security
+    regenerateSession();
 }
 
-// Destroy session
-destroySession();
-
 // Redirect to login page
-header('Location: login.php');
-exit;
+redirect('login.php');
 ?>
-
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Logged Out - ShaiBha Admin</title>
-    
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
-    <!-- Styles -->
-    <link rel="stylesheet" href="../css/admin.css">
-    
-    <!-- Favicon -->
-    <link rel="icon" type="image/svg+xml" href="../images/favicon.svg">
+    <meta charset="utf-8"/>
+    <link crossorigin="" href="https://fonts.gstatic.com/" rel="preconnect"/>
+    <link as="style" href="https://fonts.googleapis.com/css2?display=swap&family=Inter%3Awght%40400%3B500%3B600%3B700%3B900&family=Noto+Sans%3Awght%40400%3B500%3B700%3B900" onload="this.rel='stylesheet'" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet"/>
+    <title>ShaiBha Admin - Logging Out</title>
+    <link href="data:image/x-icon;base64," rel="icon" type="image/x-icon"/>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <style type="text/tailwindcss">
+        :root {
+            --background-primary: rgba(20, 20, 20, 0.7);
+            --background-secondary: rgba(48, 48, 48, 0.7);
+            --border-color: rgba(48, 48, 48, 0.9);
+            --text-primary: #ffffff;
+            --text-secondary: #ababab;
+            --blur-intensity: 10px;
+        }
+        .frosted-glass {
+            backdrop-filter: blur(var(--blur-intensity));
+            -webkit-backdrop-filter: blur(var(--blur-intensity));
+        }
+    </style>
 </head>
-<body class="logout-page">
-    <div class="logout-container">
-        <div class="logout-icon">
-            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-                <polyline points="16 17 21 12 16 7"></polyline>
-                <line x1="21" y1="12" x2="9" y2="12"></line>
-            </svg>
+<body class="bg-gradient-to-br from-black via-slate-900 to-black">
+    <div class="relative flex size-full min-h-screen flex-col bg-cover bg-center bg-fixed" style='font-family: Inter, "Noto Sans", sans-serif;'>
+        <div class="flex h-screen w-full items-center justify-center">
+            <div class="frosted-glass flex flex-col items-center rounded-xl border border-[var(--border-color)] bg-[var(--background-primary)] p-8 text-center">
+                <span class="material-icons-outlined mb-4 text-5xl text-[var(--text-primary)]">logout</span>
+                <h1 class="mb-2 text-2xl font-bold text-[var(--text-primary)]">Logging Out...</h1>
+                <p class="mb-6 text-[var(--text-secondary)]">You are being redirected to the login page.</p>
+                <div class="flex justify-center">
+                    <a class="rounded-lg bg-white px-6 py-2 font-medium text-black transition-colors hover:bg-opacity-90" href="login.php">
+                        Return to Login
+                    </a>
+                </div>
         </div>
-        <h1>You've Been Logged Out</h1>
-        <p>Thank you for using ShaiBha Admin Panel. You have been successfully logged out.</p>
-        <div class="logout-actions">
-            <a href="login.php" class="btn btn-primary">Log In Again</a>
-            <a href="../index.php" class="btn btn-outline">Return to Website</a>
         </div>
     </div>
 </body>

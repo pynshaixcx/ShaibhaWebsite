@@ -58,369 +58,284 @@ if (isset($_GET['toggle_status']) && $_GET['toggle_status'] === 'yes') {
 // Generate CSRF token
 $token = generateCSRFToken();
 ?>
-
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo $page_title; ?> - ShaiBha Admin</title>
+    <meta charset="utf-8"/>
+    <link crossorigin="" href="https://fonts.gstatic.com/" rel="preconnect"/>
+    <link as="style" href="https://fonts.googleapis.com/css2?display=swap&family=Inter%3Awght%40400%3B500%3B600%3B700%3B900&family=Noto+Sans%3Awght%40400%3B500%3B700%3B900" onload="this.rel='stylesheet'" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet"/>
+    <title>Customer Profile - ShaiBha Admin</title>
+    <link href="data:image/x-icon;base64," rel="icon" type="image/x-icon"/>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <style type="text/tailwindcss">
+          :root {
+            --background-primary: rgba(20, 20, 20, 0.7);
+            --background-secondary: rgba(48, 48, 48, 0.7);
+            --border-color: rgba(48, 48, 48, 0.9);
+            --text-primary: #ffffff;
+            --text-secondary: #ababab;
+            --blur-intensity: 10px;
+            --sidebar-glow: 0 0 20px 5px rgba(128, 128, 255, 0.2);
+            --accent-color: #4f46e5;
+          }
+          .frosted-glass {
+            backdrop-filter: blur(var(--blur-intensity));
+            -webkit-backdrop-filter: blur(var(--blur-intensity));
+          }
+          .sidebar-item:hover, .sidebar-item.active {
+            background-color: var(--background-secondary) !important;
+            border-radius: 0.5rem;
+          }
+          .icon-button:hover {
+            background-color: rgba(75, 75, 75, 0.7) !important;
+          }
+          .sidebar-glow-effect {
+            box-shadow: var(--sidebar-glow);
+          }
+          .status-badge {
+            padding: 0.375rem 0.875rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+          }
+          .status-shipped {
+            background-color: rgba(59, 130, 246, 0.2);color: #60a5fa;
+          }
+          .status-delivered {
+            background-color: rgba(34, 197, 94, 0.2);color: #4ade80;
+          }
+          .status-cancelled {
+            background-color: rgba(239, 68, 68, 0.2);color: #f87171;
+          }
+          .status-active {
+            background-color: rgba(34, 197, 94, 0.2);color: #4ade80;
+          }
+          .status-inactive {
+            background-color: rgba(239, 68, 68, 0.2);color: #f87171;
+          }
+          .status-pending {
+            background-color: rgba(245, 158, 11, 0.2);color: #fbbf24;
+          }
+          .timeline-item:last-child .timeline-line {
+            display: none;
+          }
+        </style>
+    </head>
+    <body class="bg-gradient-to-br from-black via-slate-900 to-black">
+    <div class="relative flex size-full min-h-screen flex-col bg-cover bg-center bg-fixed" style='font-family: Inter, "Noto Sans", sans-serif;'>
+    <div class="relative flex size-full min-h-screen flex-col dark group/design-root overflow-x-hidden">
+    <div class="layout-container flex h-full grow flex-col">
+    <header class="frosted-glass sticky top-0 z-50 flex items-center justify-between whitespace-nowrap border-b border-solid border-[var(--border-color)] bg-[var(--background-primary)] px-6 py-4 md:px-10">
+    <div class="flex items-center gap-4 text-[var(--text-primary)]">
+    <h2 class="text-[var(--text-primary)] text-xl font-semibold leading-tight tracking-[-0.015em]">
+    <span class="font-bold">ShaiBha</span> Admin Panel
+    </h2>
+    </div>
+    <div class="flex items-center gap-3">
+    <?php if ($error): ?>
+        <div class="bg-red-500/30 text-red-300 p-2 rounded-lg">
+            <?php echo htmlspecialchars($error); ?>
+        </div>
+    <?php endif; ?>
     
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
-    <!-- Styles -->
-    <link rel="stylesheet" href="../../css/admin.css">
-    
-    <!-- Favicon -->
-    <link rel="icon" type="image/svg+xml" href="../../images/favicon.svg">
-</head>
-<body>
-    <div class="admin-layout">
-        <!-- Sidebar -->
-        <aside class="admin-sidebar">
-            <div class="sidebar-header">
-                <h1 class="sidebar-logo">ShaiBha</h1>
-                <p class="sidebar-subtitle">Admin Panel</p>
+    <?php if ($success): ?>
+        <div class="bg-green-500/30 text-green-300 p-2 rounded-lg">
+            <?php echo htmlspecialchars($success); ?>
+        </div>
+    <?php endif; ?>
             </div>
-            
-            <nav class="sidebar-nav">
-                <ul class="nav-list">
-                    <li class="nav-item">
-                        <a href="../index.php" class="nav-link">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-                                <polyline points="9,22 9,12 15,12 15,22"></polyline>
-                            </svg>
-                            <span>Dashboard</span>
+    </header>
+    <div class="flex flex-1">
+    <aside class="frosted-glass sticky top-[73px] h-[calc(100vh-73px)] w-64 flex-col justify-between border-r border-solid border-[var(--border-color)] bg-[var(--background-primary)] p-4 hidden md:flex sidebar-glow-effect rounded-r-xl">
+    <nav class="flex flex-col gap-2">
+    <a class="sidebar-item flex items-center gap-3 px-3 py-2.5 text-[var(--text-primary)] transition-colors duration-200" href="../index.php">
+    <span class="material-icons-outlined text-xl">dashboard</span>
+    <p class="text-sm font-medium">Dashboard</p>
                         </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="../products/index.php" class="nav-link">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
-                                <line x1="3" y1="6" x2="21" y2="6"></line>
-                                <path d="M16 10a4 4 0 0 1-8 0"></path>
-                            </svg>
-                            <span>Products</span>
+    <a class="sidebar-item flex items-center gap-3 px-3 py-2.5 text-[var(--text-primary)] transition-colors duration-200" href="../orders/index.php">
+    <span class="material-icons-outlined text-xl">list_alt</span>
+    <p class="text-sm font-medium">Orders</p>
+    </a>
+    <a class="sidebar-item flex items-center gap-3 px-3 py-2.5 text-[var(--text-primary)] transition-colors duration-200" href="../products/index.php">
+    <span class="material-icons-outlined text-xl">inventory_2</span>
+    <p class="text-sm font-medium">Products</p>
+    </a>
+    <a class="sidebar-item active flex items-center gap-3 px-3 py-2.5 text-[var(--text-primary)] transition-colors duration-200" href="index.php">
+    <span class="material-icons-outlined text-xl">group</span>
+    <p class="text-sm font-medium">Customers</p>
                         </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="../orders/index.php" class="nav-link">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
-                                <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
-                            </svg>
-                            <span>Orders</span>
+    <a class="sidebar-item flex items-center gap-3 px-3 py-2.5 text-[var(--text-primary)] transition-colors duration-200" href="../reports/sales.php">
+    <span class="material-icons-outlined text-xl">bar_chart</span>
+    <p class="text-sm font-medium">Reports</p>
                         </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="index.php" class="nav-link active">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                                <circle cx="12" cy="7" r="4"></circle>
-                            </svg>
-                            <span>Customers</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="../reports/sales.php" class="nav-link">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <line x1="18" y1="20" x2="18" y2="10"></line>
-                                <line x1="12" y1="20" x2="12" y2="4"></line>
-                                <line x1="6" y1="20" x2="6" y2="14"></line>
-                                <line x1="3" y1="20" x2="21" y2="20"></line>
-                            </svg>
-                            <span>Reports</span>
-                        </a>
-                    </li>
-                </ul>
             </nav>
-            
-            <div class="sidebar-footer">
-                <a href="../logout.php" class="logout-btn">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-                        <polyline points="16 17 21 12 16 7"></polyline>
-                        <line x1="21" y1="12" x2="9" y2="12"></line>
-                    </svg>
-                    <span>Logout</span>
+    <div class="flex flex-col gap-1 pt-4 border-t border-[var(--border-color)] mt-auto">
+    <a class="sidebar-item flex items-center gap-3 px-3 py-2.5 text-[var(--text-primary)] transition-colors duration-200" href="../logout.php">
+    <span class="material-icons-outlined text-xl">logout</span>
+    <p class="text-sm font-medium">Logout</p>
                 </a>
             </div>
         </aside>
-
-        <!-- Main Content -->
-        <main class="admin-main">
-            <!-- Header -->
-            <header class="admin-header">
-                <div class="header-content">
-                    <h1 class="page-title">Customer Profile</h1>
-                    <div class="header-actions">
-                        <a href="index.php" class="btn btn-outline">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <line x1="19" y1="12" x2="5" y2="12"></line>
-                                <polyline points="12 19 5 12 12 5"></polyline>
-                            </svg>
-                            Back to Customers
+    <main class="flex-1 p-6 md:p-10 overflow-y-auto">
+    <div class="flex justify-between items-center mb-8">
+        <p class="text-[var(--text-primary)] text-3xl font-bold leading-tight">Customer Profile</p>
+        <div class="flex space-x-2">
+            <a href="index.php" class="flex h-10 items-center justify-center overflow-hidden rounded-lg border border-[var(--border-color)] bg-transparent px-6 text-sm font-medium text-[var(--text-secondary)] hover:bg-[var(--background-primary)]">
+                <span class="material-icons-outlined text-sm mr-1">arrow_back</span> Back
                         </a>
-                        <a href="view.php?id=<?php echo $customer_id; ?>&toggle_status=yes&token=<?php echo $token; ?>" class="btn <?php echo $customer['status'] === 'active' ? 'btn-danger' : 'btn-success'; ?>">
+            <a href="view.php?id=<?php echo $customer_id; ?>&toggle_status=yes&token=<?php echo $token; ?>" class="flex h-10 items-center justify-center overflow-hidden rounded-lg px-6 text-sm font-medium text-white 
+                <?php echo $customer['status'] === 'active' ? 'bg-red-600 hover:bg-red-700' : 'bg-green-600 hover:bg-green-700'; ?>">
                             <?php if ($customer['status'] === 'active'): ?>
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M18 6L6 18"></path>
-                                    <path d="M6 6l12 12"></path>
-                                </svg>
-                                Deactivate Customer
+                    <span class="material-icons-outlined text-sm mr-1">block</span> Deactivate
                             <?php else: ?>
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M9 12l2 2 4-4"></path>
-                                    <circle cx="12" cy="12" r="10"></circle>
-                                </svg>
-                                Activate Customer
+                    <span class="material-icons-outlined text-sm mr-1">check_circle</span> Activate
                             <?php endif; ?>
                         </a>
                     </div>
                 </div>
-            </header>
-
-            <!-- View Customer Content -->
-            <div class="admin-content">
-                <?php if ($error): ?>
-                    <div class="alert alert-error">
-                        <?php echo htmlspecialchars($error); ?>
+    <section class="frosted-glass rounded-xl p-6 bg-[var(--background-secondary)] shadow-lg mb-8">
+    <h2 class="text-[var(--text-primary)] text-2xl font-semibold mb-6">Contact Info</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-6">
+        <div>
+            <p class="text-[var(--text-secondary)] text-sm">Name</p>
+            <p class="text-[var(--text-primary)] text-base mt-1"><?php echo htmlspecialchars($customer['first_name'] . ' ' . $customer['last_name']); ?></p>
                     </div>
-                <?php endif; ?>
-                
-                <?php if ($success): ?>
-                    <div class="alert alert-success">
-                        <?php echo htmlspecialchars($success); ?>
+        <div>
+            <p class="text-[var(--text-secondary)] text-sm">Email</p>
+            <p class="text-[var(--text-primary)] text-base mt-1"><?php echo htmlspecialchars($customer['email']); ?></p>
                     </div>
-                <?php endif; ?>
-                
-                <div class="customer-view-layout">
-                    <div class="customer-main">
-                        <!-- Customer Profile -->
-                        <div class="customer-profile-card">
-                            <div class="profile-header">
-                                <div class="customer-avatar">
-                                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                                        <circle cx="12" cy="7" r="4"></circle>
-                                    </svg>
+        <div>
+            <p class="text-[var(--text-secondary)] text-sm">Phone</p>
+            <p class="text-[var(--text-primary)] text-base mt-1"><?php echo htmlspecialchars($customer['phone'] ?: 'Not provided'); ?></p>
                                 </div>
-                                <div class="customer-info">
-                                    <h2><?php echo htmlspecialchars($customer['first_name'] . ' ' . $customer['last_name']); ?></h2>
-                                    <div class="customer-meta">
-                                        <span class="customer-email"><?php echo htmlspecialchars($customer['email']); ?></span>
+        <div>
+            <p class="text-[var(--text-secondary)] text-sm">Status</p>
+            <p class="mt-1">
                                         <span class="status-badge status-<?php echo $customer['status']; ?>">
                                             <?php echo ucfirst($customer['status']); ?>
                                         </span>
+            </p>
                                     </div>
+        <div>
+            <p class="text-[var(--text-secondary)] text-sm">Registered</p>
+            <p class="text-[var(--text-primary)] text-base mt-1"><?php echo date('Y-m-d', strtotime($customer['created_at'])); ?></p>
+                                </div>
+        <div>
+            <p class="text-[var(--text-secondary)] text-sm">Last Login</p>
+            <p class="text-[var(--text-primary)] text-base mt-1"><?php echo $customer['last_login'] ? date('Y-m-d H:i', strtotime($customer['last_login'])) : 'Never'; ?></p>
+                            </div>
+        <?php if (!empty($addresses)): ?>
+            <div class="col-span-1 sm:col-span-2 mt-4">
+                <p class="text-[var(--text-secondary)] text-sm mb-2">Addresses</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <?php foreach ($addresses as $address): ?>
+                        <div class="border border-[var(--border-color)] rounded-lg p-4 bg-[var(--background-primary)]">
+                            <?php if ($address['is_default']): ?>
+                                <div class="mb-2">
+                                    <span class="bg-blue-500/20 text-blue-400 text-xs px-2 py-1 rounded-full">Default</span>
+                                </div>
+                            <?php endif; ?>
+                            <p class="text-[var(--text-primary)]"><?php echo htmlspecialchars($address['address_line1']); ?></p>
+                            <?php if ($address['address_line2']): ?>
+                                <p class="text-[var(--text-primary)]"><?php echo htmlspecialchars($address['address_line2']); ?></p>
+                            <?php endif; ?>
+                            <p class="text-[var(--text-primary)]">
+                                <?php echo htmlspecialchars($address['city'] . ', ' . $address['state'] . ' ' . $address['postal_code']); ?>
+                            </p>
+                            <p class="text-[var(--text-primary)]"><?php echo htmlspecialchars($address['country']); ?></p>
+                                </div>
+                    <?php endforeach; ?>
                                 </div>
                             </div>
-                            
-                            <div class="profile-details">
-                                <div class="detail-row">
-                                    <span class="detail-label">Phone</span>
-                                    <span class="detail-value"><?php echo htmlspecialchars($customer['phone'] ?: 'Not provided'); ?></span>
-                                </div>
-                                <div class="detail-row">
-                                    <span class="detail-label">Date of Birth</span>
-                                    <span class="detail-value"><?php echo $customer['date_of_birth'] ? date('M j, Y', strtotime($customer['date_of_birth'])) : 'Not provided'; ?></span>
-                                </div>
-                                <div class="detail-row">
-                                    <span class="detail-label">Gender</span>
-                                    <span class="detail-value"><?php echo $customer['gender'] ? ucfirst($customer['gender']) : 'Not provided'; ?></span>
-                                </div>
-                                <div class="detail-row">
-                                    <span class="detail-label">Registered</span>
-                                    <span class="detail-value"><?php echo date('M j, Y', strtotime($customer['created_at'])); ?></span>
-                                </div>
-                                <div class="detail-row">
-                                    <span class="detail-label">Last Login</span>
-                                    <span class="detail-value"><?php echo $customer['last_login'] ? date('M j, Y g:i A', strtotime($customer['last_login'])) : 'Never'; ?></span>
-                                </div>
-                                <div class="detail-row">
-                                    <span class="detail-label">Email Verified</span>
-                                    <span class="detail-value"><?php echo $customer['email_verified'] ? 'Yes' : 'No'; ?></span>
-                                </div>
-                            </div>
+        <?php endif; ?>
                         </div>
+    </section>
                         
-                        <!-- Customer Orders -->
-                        <div class="customer-orders-card">
-                            <h2>Order History</h2>
                             <?php if (!empty($orders)): ?>
-                                <div class="table-container">
-                                    <table class="data-table">
-                                        <thead>
+    <section class="frosted-glass rounded-xl p-6 bg-[var(--background-secondary)] shadow-lg mb-8">
+    <h2 class="text-[var(--text-primary)] text-2xl font-semibold mb-6">Order History</h2>
+    <div class="frosted-glass @container overflow-hidden rounded-xl border border-[var(--border-color)] bg-[var(--background-primary)] shadow-lg">
+    <div class="overflow-x-auto">
+    <table class="min-w-full">
+    <thead class="bg-white/5">
                                             <tr>
-                                                <th>Order #</th>
-                                                <th>Date</th>
-                                                <th>Amount</th>
-                                                <th>Payment</th>
-                                                <th>Status</th>
-                                                <th>Actions</th>
+    <th class="px-6 py-4 text-left text-[var(--text-secondary)] text-xs font-medium uppercase tracking-wider">Order ID</th>
+    <th class="px-6 py-4 text-left text-[var(--text-secondary)] text-xs font-medium uppercase tracking-wider">Date</th>
+    <th class="px-6 py-4 text-left text-[var(--text-secondary)] text-xs font-medium uppercase tracking-wider">Status</th>
+    <th class="px-6 py-4 text-left text-[var(--text-secondary)] text-xs font-medium uppercase tracking-wider">Total</th>
+    <th class="px-6 py-4 text-left text-[var(--text-secondary)] text-xs font-medium uppercase tracking-wider">Actions</th>
                                             </tr>
                                         </thead>
-                                        <tbody>
+    <tbody class="divide-y divide-[var(--border-color)]">
                                             <?php foreach ($orders as $order): ?>
                                                 <tr>
-                                                    <td><?php echo htmlspecialchars($order['order_number']); ?></td>
-                                                    <td><?php echo date('M j, Y', strtotime($order['created_at'])); ?></td>
-                                                    <td><?php echo formatPrice($order['total_amount']); ?></td>
-                                                    <td>
-                                                        <span class="payment-badge payment-<?php echo $order['payment_status']; ?>">
-                                                            <?php echo ucfirst($order['payment_status']); ?>
-                                                        </span>
+    <td class="px-6 py-4 whitespace-nowrap text-[var(--text-primary)] text-sm font-medium">#<?php echo $order['order_number']; ?></td>
+    <td class="px-6 py-4 whitespace-nowrap text-[var(--text-secondary)] text-sm"><?php echo date('Y-m-d', strtotime($order['created_at'])); ?></td>
+    <td class="px-6 py-4 whitespace-nowrap">
+    <span class="status-badge status-<?php echo strtolower($order['order_status']); ?>"><?php echo ucfirst($order['order_status']); ?></span>
                                                     </td>
-                                                    <td>
-                                                        <span class="status-badge status-<?php echo $order['order_status']; ?>">
-                                                            <?php echo ucfirst($order['order_status']); ?>
-                                                        </span>
-                                                    </td>
-                                                    <td>
-                                                        <div class="table-actions">
-                                                            <a href="../orders/view.php?id=<?php echo $order['id']; ?>" class="action-btn view-btn" title="View Order">
-                                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                                                                    <circle cx="12" cy="12" r="3"></circle>
-                                                                </svg>
-                                                            </a>
-                                                        </div>
+    <td class="px-6 py-4 whitespace-nowrap text-[var(--text-secondary)] text-sm"><?php echo formatPrice($order['total_amount']); ?></td>
+    <td class="px-6 py-4 whitespace-nowrap text-[var(--text-secondary)] text-sm">
+        <a href="../orders/view.php?id=<?php echo $order['id']; ?>" class="text-[var(--accent-color)] hover:underline">View</a>
                                                     </td>
                                                 </tr>
                                             <?php endforeach; ?>
                                         </tbody>
                                     </table>
                                 </div>
-                            <?php else: ?>
-                                <div class="no-data-message">No orders found for this customer</div>
+    </div>
+    </section>
                             <?php endif; ?>
-                        </div>
-                    </div>
+    
+    <?php if (!empty($activity)): ?>
+    <section class="frosted-glass rounded-xl p-6 bg-[var(--background-secondary)] shadow-lg">
+    <h2 class="text-[var(--text-primary)] text-2xl font-semibold mb-6">Activity Logs</h2>
+    <div class="space-y-6">
+    <?php foreach ($activity as $index => $log): ?>
+        <div class="flex items-start timeline-item">
+            <div class="flex flex-col items-center mr-4">
+                <?php 
+                    $icon_class = 'bg-[var(--accent-color)] bg-opacity-20 text-[var(--accent-color)]';
+                    $icon = 'person';
                     
-                    <div class="customer-sidebar">
-                        <!-- Customer Stats -->
-                        <div class="customer-stats-card">
-                            <h2>Customer Stats</h2>
-                            <div class="stats-grid">
-                                <div class="stat-item">
-                                    <div class="stat-icon orders-icon">
-                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                            <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
-                                            <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
-                                        </svg>
+                    if (strpos($log['action'], 'order') !== false) {
+                        $icon_class = 'bg-blue-500 bg-opacity-20 text-blue-400';
+                        $icon = 'shopping_cart';
+                    } elseif (strpos($log['action'], 'login') !== false) {
+                        $icon_class = 'bg-green-500 bg-opacity-20 text-green-400';
+                        $icon = 'login';
+                    } elseif (strpos($log['action'], 'update') !== false) {
+                        $icon_class = 'bg-yellow-500 bg-opacity-20 text-yellow-400';
+                        $icon = 'edit';
+                    }
+                ?>
+                <div class="flex items-center justify-center size-10 rounded-full <?php echo $icon_class; ?>">
+                    <span class="material-icons-outlined"><?php echo $icon; ?></span>
                                     </div>
-                                    <div class="stat-content">
-                                        <h3>Total Orders</h3>
-                                        <p class="stat-value"><?php echo count($orders); ?></p>
-                                    </div>
-                                </div>
-                                
-                                <div class="stat-item">
-                                    <div class="stat-icon revenue-icon">
-                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                            <line x1="12" y1="1" x2="12" y2="23"></line>
-                                            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
-                                        </svg>
-                                    </div>
-                                    <div class="stat-content">
-                                        <h3>Total Spent</h3>
-                                        <p class="stat-value">
-                                            <?php
-                                            $total_spent = 0;
-                                            foreach ($orders as $order) {
-                                                if ($order['payment_status'] === 'paid') {
-                                                    $total_spent += $order['total_amount'];
-                                                }
-                                            }
-                                            echo formatPrice($total_spent);
-                                            ?>
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- Customer Addresses -->
-                        <div class="customer-addresses-card">
-                            <h2>Addresses</h2>
-                            <?php if (!empty($addresses)): ?>
-                                <div class="addresses-list">
-                                    <?php foreach ($addresses as $address): ?>
-                                        <div class="address-item">
-                                            <div class="address-header">
-                                                <h3><?php echo ucfirst($address['type']); ?> Address</h3>
-                                                <?php if ($address['is_default']): ?>
-                                                    <span class="default-badge">Default</span>
+                <?php if ($index < count($activity) - 1): ?>
+                    <div class="w-px h-8 bg-[var(--border-color)] timeline-line"></div>
                                                 <?php endif; ?>
                                             </div>
-                                            <div class="address-content">
-                                                <p><?php echo htmlspecialchars($address['first_name'] . ' ' . $address['last_name']); ?></p>
-                                                <?php if ($address['company']): ?>
-                                                    <p><?php echo htmlspecialchars($address['company']); ?></p>
-                                                <?php endif; ?>
-                                                <p><?php echo htmlspecialchars($address['address_line_1']); ?></p>
-                                                <?php if ($address['address_line_2']): ?>
-                                                    <p><?php echo htmlspecialchars($address['address_line_2']); ?></p>
-                                                <?php endif; ?>
-                                                <p><?php echo htmlspecialchars($address['city'] . ', ' . $address['state'] . ' ' . $address['postal_code']); ?></p>
-                                                <p><?php echo htmlspecialchars($address['country']); ?></p>
-                                                <?php if ($address['phone']): ?>
-                                                    <p>Phone: <?php echo htmlspecialchars($address['phone']); ?></p>
+            <div>
+                <p class="text-[var(--text-primary)] text-base font-medium"><?php echo ucfirst(str_replace('_', ' ', $log['action'])); ?></p>
+                <p class="text-[var(--text-secondary)] text-sm"><?php echo date('Y-m-d H:i', strtotime($log['created_at'])); ?></p>
+                <?php if ($log['details']): ?>
+                    <p class="text-[var(--text-secondary)] text-sm mt-1"><?php echo htmlspecialchars($log['details']); ?></p>
                                                 <?php endif; ?>
                                             </div>
                                         </div>
                                     <?php endforeach; ?>
                                 </div>
-                            <?php else: ?>
-                                <div class="no-data-message">No addresses found for this customer</div>
+    </section>
                             <?php endif; ?>
-                        </div>
-                        
-                        <!-- Customer Activity -->
-                        <div class="customer-activity-card">
-                            <h2>Recent Activity</h2>
-                            <?php if (!empty($activity)): ?>
-                                <div class="activity-timeline">
-                                    <?php foreach ($activity as $log): ?>
-                                        <div class="activity-item">
-                                            <div class="activity-icon">
-                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                    <?php if (strpos($log['action'], 'login') !== false): ?>
-                                                        <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
-                                                        <polyline points="10,17 15,12 10,7"></polyline>
-                                                        <line x1="15" y1="12" x2="3" y2="12"></line>
-                                                    <?php elseif (strpos($log['action'], 'order') !== false): ?>
-                                                        <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
-                                                        <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
-                                                    <?php else: ?>
-                                                        <circle cx="12" cy="12" r="10"></circle>
-                                                        <line x1="12" y1="8" x2="12" y2="12"></line>
-                                                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
-                                                    <?php endif; ?>
-                                                </svg>
-                                            </div>
-                                            <div class="activity-content">
-                                                <h4><?php echo str_replace('_', ' ', ucwords($log['action'], '_')); ?></h4>
-                                                <p><?php echo htmlspecialchars($log['description']); ?></p>
-                                                <span class="activity-date"><?php echo date('M j, Y g:i A', strtotime($log['created_at'])); ?></span>
-                                            </div>
-                                        </div>
-                                    <?php endforeach; ?>
-                                </div>
-                            <?php else: ?>
-                                <div class="no-data-message">No activity found for this customer</div>
-                            <?php endif; ?>
+    </main>
                         </div>
                     </div>
                 </div>
             </div>
-        </main>
-    </div>
-
-    <script src="../../js/admin.js"></script>
 </body>
 </html>

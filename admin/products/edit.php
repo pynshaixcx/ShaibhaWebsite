@@ -105,162 +105,159 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 ?>
-
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo $page_title; ?> - ShaiBha Admin</title>
-    
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
-    <!-- Styles -->
-    <link rel="stylesheet" href="../../css/admin.css">
-    
-    <!-- Favicon -->
-    <link rel="icon" type="image/svg+xml" href="../../images/favicon.svg">
+    <meta charset="utf-8"/>
+    <link crossorigin="" href="https://fonts.gstatic.com/" rel="preconnect"/>
+    <link as="style" href="https://fonts.googleapis.com/css2?display=swap&family=Inter%3Awght%40400%3B500%3B600%3B700%3B900&family=Noto+Sans%3Awght%40400%3B500%3B700%3B900" onload="this.rel='stylesheet'" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet"/>
+    <title>ShaiBha Admin - Edit Product</title>
+    <link href="data:image/x-icon;base64," rel="icon" type="image/x-icon"/>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <style type="text/tailwindcss">
+        :root {
+        --background-primary: rgba(20, 20, 20, 0.7);
+        --background-secondary: rgba(48, 48, 48, 0.7);
+        --border-color: rgba(48, 48, 48, 0.9);
+          --text-primary: #ffffff;
+        --text-secondary: #ababab;
+        --blur-intensity: 10px;
+        --sidebar-glow: 0 0 20px 5px rgba(128, 128, 255, 0.2);
+        }
+      .frosted-glass {
+        backdrop-filter: blur(var(--blur-intensity));
+        -webkit-backdrop-filter: blur(var(--blur-intensity));
+      }
+      .sidebar-item:hover, .sidebar-item.active {
+        background-color: var(--background-secondary) !important;
+        border-radius: 0.5rem;
+      }
+      .icon-button:hover {
+        background-color: rgba(75, 75, 75, 0.7) !important;
+      }
+      .sidebar-glow-effect {
+        box-shadow: var(--sidebar-glow);
+        }
+        .form-input {
+        @apply flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-xl text-[var(--text-primary)] focus:outline-0 focus:ring-2 focus:ring-inset focus:ring-white/50 border border-[var(--border-color)] bg-[var(--background-secondary)] focus:border-white/50 h-14 placeholder:text-[var(--text-secondary)] p-[15px] text-base font-normal leading-normal transition-colors duration-200 ease-in-out;
+          }
+          .form-input:hover {
+            @apply border-[var(--text-secondary)];
+          }
+          .btn {
+        @apply flex items-center justify-center overflow-hidden rounded-lg h-10 px-6 text-sm font-bold leading-normal tracking-[0.015em] transition-colors duration-200 ease-in-out;
+          }
+          .btn-primary {
+        @apply bg-white/10 text-[var(--text-primary)] hover:bg-white/20;
+          }
+          .btn-secondary {
+        @apply bg-[var(--background-secondary)] text-[var(--text-primary)] hover:bg-[rgba(75,75,75,0.7)];
+          }
+          .nav-link {
+            @apply text-[var(--text-primary)] text-sm font-medium leading-normal hover:text-[var(--text-secondary)] transition-colors duration-200 ease-in-out;
+          }
+      </style>
 </head>
-<body>
-    <div class="admin-layout">
-        <!-- Sidebar -->
-        <aside class="admin-sidebar">
-            <div class="sidebar-header">
-                <h1 class="sidebar-logo">ShaiBha</h1>
-                <p class="sidebar-subtitle">Admin Panel</p>
+<body class="bg-gradient-to-br from-black via-slate-900 to-black">
+<div class="relative flex size-full min-h-screen flex-col bg-cover bg-center bg-fixed" style='font-family: Inter, "Noto Sans", sans-serif;'>
+<div class="relative flex size-full min-h-screen flex-col dark group/design-root">
+    <div class="layout-container flex h-full grow flex-col">
+<header class="frosted-glass sticky top-0 z-50 flex items-center justify-between whitespace-nowrap border-b border-solid border-[var(--border-color)] bg-[var(--background-primary)] px-6 py-4 md:px-10">
+    <div class="flex items-center gap-4 text-[var(--text-primary)]">
+<h2 class="text-xl font-semibold leading-tight tracking-[-0.015em]">
+<span class="font-bold">ShaiBha</span> Admin Panel
+</h2>
+    </div>
+<div class="flex items-center gap-3">
             </div>
-            
-            <nav class="sidebar-nav">
-                <ul class="nav-list">
-                    <li class="nav-item">
-                        <a href="../index.php" class="nav-link">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-                                <polyline points="9,22 9,12 15,12 15,22"></polyline>
-                            </svg>
-                            <span>Dashboard</span>
+    </header>
+
+<div class="flex flex-1">
+<!-- Sidebar -->
+<aside class="frosted-glass sticky top-[73px] h-[calc(100vh-73px)] w-64 flex-col justify-between border-r border-solid border-[var(--border-color)] bg-[var(--background-primary)] p-4 hidden md:flex sidebar-glow-effect rounded-r-xl">
+<nav class="flex flex-col gap-2">
+<a class="sidebar-item flex items-center gap-3 px-3 py-2.5 text-[var(--text-primary)] transition-colors duration-200" href="../index.php">
+<span class="material-icons-outlined text-xl">dashboard</span>
+<p class="text-sm font-medium">Dashboard</p>
                         </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="index.php" class="nav-link active">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
-                                <line x1="3" y1="6" x2="21" y2="6"></line>
-                                <path d="M16 10a4 4 0 0 1-8 0"></path>
-                            </svg>
-                            <span>Products</span>
+<a class="sidebar-item flex items-center gap-3 px-3 py-2.5 text-[var(--text-primary)] transition-colors duration-200" href="../orders/index.php">
+<span class="material-icons-outlined text-xl">list_alt</span>
+<p class="text-sm font-medium">Orders</p>
+</a>
+<a class="sidebar-item active flex items-center gap-3 px-3 py-2.5 text-[var(--text-primary)] transition-colors duration-200" href="index.php">
+<span class="material-icons-outlined text-xl">inventory_2</span>
+<p class="text-sm font-medium">Products</p>
                         </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="../orders/index.php" class="nav-link">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
-                                <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
-                            </svg>
-                            <span>Orders</span>
+<a class="sidebar-item flex items-center gap-3 px-3 py-2.5 text-[var(--text-primary)] transition-colors duration-200" href="../customers/index.php">
+<span class="material-icons-outlined text-xl">group</span>
+<p class="text-sm font-medium">Customers</p>
                         </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="../customers/index.php" class="nav-link">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                                <circle cx="12" cy="7" r="4"></circle>
-                            </svg>
-                            <span>Customers</span>
+<a class="sidebar-item flex items-center gap-3 px-3 py-2.5 text-[var(--text-primary)] transition-colors duration-200" href="../reports/sales.php">
+<span class="material-icons-outlined text-xl">bar_chart</span>
+<p class="text-sm font-medium">Reports</p>
                         </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="../reports/sales.php" class="nav-link">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <line x1="18" y1="20" x2="18" y2="10"></line>
-                                <line x1="12" y1="20" x2="12" y2="4"></line>
-                                <line x1="6" y1="20" x2="6" y2="14"></line>
-                                <line x1="3" y1="20" x2="21" y2="20"></line>
-                            </svg>
-                            <span>Reports</span>
-                        </a>
-                    </li>
-                </ul>
             </nav>
-            
-            <div class="sidebar-footer">
-                <a href="../logout.php" class="logout-btn">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-                        <polyline points="16 17 21 12 16 7"></polyline>
-                        <line x1="21" y1="12" x2="9" y2="12"></line>
-                    </svg>
-                    <span>Logout</span>
+<div class="flex flex-col gap-1 pt-4 border-t border-[var(--border-color)] mt-auto">
+<a class="sidebar-item flex items-center gap-3 px-3 py-2.5 text-[var(--text-primary)] transition-colors duration-200" href="../logout.php">
+<span class="material-icons-outlined text-xl">logout</span>
+<p class="text-sm font-medium">Logout</p>
                 </a>
             </div>
         </aside>
 
-        <!-- Main Content -->
-        <main class="admin-main">
-            <!-- Header -->
-            <header class="admin-header">
-                <div class="header-content">
-                    <h1 class="page-title">Edit Product: <?php echo htmlspecialchars($product['name']); ?></h1>
-                    <div class="header-actions">
-                        <a href="index.php" class="btn btn-outline">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <line x1="19" y1="12" x2="5" y2="12"></line>
-                                <polyline points="12 19 5 12 12 5"></polyline>
-                            </svg>
-                            Back to Products
-                        </a>
-                        <a href="../../shop/product.php?slug=<?php echo $product['slug']; ?>" target="_blank" class="btn btn-secondary">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                                <circle cx="12" cy="12" r="3"></circle>
-                            </svg>
-                            View Product
-                        </a>
-                    </div>
-                </div>
-            </header>
-
-            <!-- Edit Product Content -->
-            <div class="admin-content">
+<main class="flex-1 p-6 md:p-10 overflow-y-auto">
+<div class="frosted-glass rounded-xl p-6">
+    <header class="mb-8">
+    <h1 class="text-[var(--text-primary)] text-4xl font-bold leading-tight">Edit Product: <?php echo htmlspecialchars($product['name']); ?></h1>
                 <?php if ($error): ?>
-                    <div class="alert alert-error">
+        <div class="bg-red-500/30 text-red-300 p-4 rounded-xl mt-4">
                         <?php echo htmlspecialchars($error); ?>
                     </div>
                 <?php endif; ?>
                 
                 <?php if ($success): ?>
-                    <div class="alert alert-success">
+        <div class="bg-green-500/30 text-green-300 p-4 rounded-xl mt-4">
                         <?php echo htmlspecialchars($success); ?>
                     </div>
                 <?php endif; ?>
+    </header>
                 
-                <form method="POST" enctype="multipart/form-data" class="admin-form" data-validate>
+    <form method="POST" enctype="multipart/form-data" class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
                     <input type="hidden" name="csrf_token" value="<?php echo generateCSRFToken(); ?>">
                     
-                    <div class="form-layout">
-                        <div class="form-main">
-                            <!-- Basic Information -->
-                            <div class="form-section">
-                                <h2 class="section-title">Basic Information</h2>
-                                
-                                <div class="form-group">
-                                    <label for="name">Product Name *</label>
-                                    <input type="text" id="name" name="name" required value="<?php echo htmlspecialchars($product['name']); ?>">
+    <div class="md:col-span-2">
+    <label class="flex flex-col">
+    <p class="text-[var(--text-primary)] text-base font-medium leading-normal pb-2">Product Name</p>
+    <input name="name" class="form-input" type="text" value="<?php echo htmlspecialchars($product['name']); ?>" required/>
+    </label>
+    </div>
+    
+    <div class="md:col-span-2">
+    <label class="flex flex-col">
+    <p class="text-[var(--text-primary)] text-base font-medium leading-normal pb-2">Description</p>
+    <textarea name="description" class="form-input min-h-36" required><?php echo htmlspecialchars($product['description']); ?></textarea>
+    </label>
+    </div>
+    
+    <div>
+    <label class="flex flex-col">
+    <p class="text-[var(--text-primary)] text-base font-medium leading-normal pb-2">Price (INR)</p>
+    <input name="price" class="form-input" type="number" step="0.01" value="<?php echo htmlspecialchars($product['price']); ?>" required/>
+    </label>
                                 </div>
                                 
-                                <div class="form-group">
-                                    <label for="slug">Slug</label>
-                                    <input type="text" id="slug" name="slug" value="<?php echo htmlspecialchars($product['slug']); ?>">
-                                    <div class="field-hint">URL-friendly version of the name (e.g., vintage-silk-dress)</div>
+    <div>
+    <label class="flex flex-col">
+    <p class="text-[var(--text-primary)] text-base font-medium leading-normal pb-2">Sale Price (INR, optional)</p>
+    <input name="sale_price" class="form-input" type="number" step="0.01" value="<?php echo htmlspecialchars($product['sale_price'] ?? ''); ?>"/>
+    </label>
                                 </div>
                                 
-                                <div class="form-row">
-                                    <div class="form-group">
-                                        <label for="category_id">Category *</label>
-                                        <select id="category_id" name="category_id" required>
+    <div>
+    <label class="flex flex-col">
+    <p class="text-[var(--text-primary)] text-base font-medium leading-normal pb-2">Category</p>
+    <select name="category_id" class="form-input bg-[var(--background-secondary)]" required>
                                             <option value="">Select Category</option>
                                             <?php foreach ($categories as $category): ?>
                                                 <option value="<?php echo $category['id']; ?>" <?php echo $product['category_id'] == $category['id'] ? 'selected' : ''; ?>>
@@ -268,193 +265,114 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                                 </option>
                                             <?php endforeach; ?>
                                         </select>
+    </label>
                                     </div>
                                     
-                                    <div class="form-group">
-                                        <label for="sku">SKU</label>
-                                        <input type="text" id="sku" name="sku" value="<?php echo htmlspecialchars($product['sku']); ?>">
-                                    </div>
+    <div>
+    <label class="flex flex-col">
+    <p class="text-[var(--text-primary)] text-base font-medium leading-normal pb-2">SKU</p>
+    <input name="sku" class="form-input" type="text" value="<?php echo htmlspecialchars($product['sku']); ?>" required/>
+    </label>
                                 </div>
                                 
-                                <div class="form-group">
-                                    <label for="short_description">Short Description</label>
-                                    <input type="text" id="short_description" name="short_description" value="<?php echo htmlspecialchars($product['short_description']); ?>" maxlength="500">
-                                    <div class="field-hint">Brief description for product listings (max 500 characters)</div>
+    <div>
+    <label class="flex flex-col">
+    <p class="text-[var(--text-primary)] text-base font-medium leading-normal pb-2">Size</p>
+    <input name="size" class="form-input" type="text" value="<?php echo htmlspecialchars($product['size'] ?? ''); ?>"/>
+    </label>
                                 </div>
                                 
-                                <div class="form-group">
-                                    <label for="description">Full Description *</label>
-                                    <textarea id="description" name="description" rows="6" required><?php echo htmlspecialchars($product['description']); ?></textarea>
-                                </div>
+    <div>
+    <label class="flex flex-col">
+    <p class="text-[var(--text-primary)] text-base font-medium leading-normal pb-2">Color</p>
+    <input name="color" class="form-input" type="text" value="<?php echo htmlspecialchars($product['color'] ?? ''); ?>"/>
+    </label>
                             </div>
                             
-                            <!-- Pricing & Inventory -->
-                            <div class="form-section">
-                                <h2 class="section-title">Pricing & Inventory</h2>
-                                
-                                <div class="form-row">
-                                    <div class="form-group">
-                                        <label for="price">Regular Price (₹) *</label>
-                                        <input type="number" id="price" name="price" step="0.01" min="0" required value="<?php echo htmlspecialchars($product['price']); ?>">
+    <div>
+    <label class="flex flex-col">
+    <p class="text-[var(--text-primary)] text-base font-medium leading-normal pb-2">Brand</p>
+    <input name="brand" class="form-input" type="text" value="<?php echo htmlspecialchars($product['brand'] ?? ''); ?>"/>
+    </label>
                                     </div>
                                     
-                                    <div class="form-group">
-                                        <label for="sale_price">Sale Price (₹)</label>
-                                        <input type="number" id="sale_price" name="sale_price" step="0.01" min="0" value="<?php echo htmlspecialchars($product['sale_price'] ?? ''); ?>">
-                                    </div>
+    <div>
+    <label class="flex flex-col">
+    <p class="text-[var(--text-primary)] text-base font-medium leading-normal pb-2">Stock Quantity</p>
+    <input name="stock_quantity" class="form-input" type="number" value="<?php echo htmlspecialchars($product['stock_quantity']); ?>" required/>
+    </label>
                                 </div>
                                 
-                                <div class="form-row">
-                                    <div class="form-group">
-                                        <label for="stock_quantity">Stock Quantity *</label>
-                                        <input type="number" id="stock_quantity" name="stock_quantity" min="0" required value="<?php echo htmlspecialchars($product['stock_quantity']); ?>">
-                                    </div>
-                                    
-                                    <div class="form-group">
-                                        <label for="condition_rating">Condition *</label>
-                                        <select id="condition_rating" name="condition_rating" required>
-                                            <option value="excellent" <?php echo $product['condition_rating'] === 'excellent' ? 'selected' : ''; ?>>Excellent</option>
-                                            <option value="very_good" <?php echo $product['condition_rating'] === 'very_good' ? 'selected' : ''; ?>>Very Good</option>
-                                            <option value="good" <?php echo $product['condition_rating'] === 'good' ? 'selected' : ''; ?>>Good</option>
-                                            <option value="fair" <?php echo $product['condition_rating'] === 'fair' ? 'selected' : ''; ?>>Fair</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <!-- Product Attributes -->
-                            <div class="form-section">
-                                <h2 class="section-title">Product Attributes</h2>
-                                
-                                <div class="form-row">
-                                    <div class="form-group">
-                                        <label for="size">Size</label>
-                                        <input type="text" id="size" name="size" value="<?php echo htmlspecialchars($product['size']); ?>">
-                                    </div>
-                                    
-                                    <div class="form-group">
-                                        <label for="color">Color</label>
-                                        <input type="text" id="color" name="color" value="<?php echo htmlspecialchars($product['color']); ?>">
-                                    </div>
-                                </div>
-                                
-                                <div class="form-row">
-                                    <div class="form-group">
-                                        <label for="brand">Brand</label>
-                                        <input type="text" id="brand" name="brand" value="<?php echo htmlspecialchars($product['brand']); ?>">
-                                    </div>
-                                    
-                                    <div class="form-group">
-                                        <label for="material">Material</label>
-                                        <input type="text" id="material" name="material" value="<?php echo htmlspecialchars($product['material']); ?>">
-                                    </div>
-                                </div>
-                                
-                                <div class="form-group">
-                                    <label for="care_instructions">Care Instructions</label>
-                                    <textarea id="care_instructions" name="care_instructions" rows="4"><?php echo htmlspecialchars($product['care_instructions']); ?></textarea>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="form-sidebar">
-                            <!-- Product Status -->
-                            <div class="form-section">
-                                <h2 class="section-title">Product Status</h2>
-                                
-                                <div class="form-group">
-                                    <label for="status">Status</label>
-                                    <select id="status" name="status">
+    <div>
+    <label class="flex flex-col">
+    <p class="text-[var(--text-primary)] text-base font-medium leading-normal pb-2">Status</p>
+    <select name="status" class="form-input bg-[var(--background-secondary)]">
                                         <option value="active" <?php echo $product['status'] === 'active' ? 'selected' : ''; ?>>Active</option>
                                         <option value="inactive" <?php echo $product['status'] === 'inactive' ? 'selected' : ''; ?>>Inactive</option>
                                         <option value="sold" <?php echo $product['status'] === 'sold' ? 'selected' : ''; ?>>Sold</option>
                                     </select>
+    </label>
                                 </div>
                                 
-                                <div class="form-group checkbox-group">
-                                    <label class="checkbox-label">
-                                        <input type="checkbox" name="featured" <?php echo $product['featured'] ? 'checked' : ''; ?>>
-                                        <span>Featured Product</span>
+    <div>
+    <label class="flex flex-col">
+    <p class="text-[var(--text-primary)] text-base font-medium leading-normal pb-2">Featured Product</p>
+    <div class="flex items-center space-x-2 mt-2">
+        <input type="checkbox" name="featured" id="featured" class="w-5 h-5 rounded bg-[var(--background-secondary)] border-[var(--border-color)]" <?php echo ($product['featured'] ?? 0) ? 'checked' : ''; ?>>
+        <label for="featured" class="text-[var(--text-primary)]">Mark as featured product</label>
+    </div>
                                     </label>
-                                </div>
                             </div>
                             
-                            <!-- Product Image -->
-                            <div class="form-section">
-                                <h2 class="section-title">Product Images</h2>
-                                
-                                <div class="form-group">
-                                    <label>Current Images</label>
-                                    <div class="current-images">
+    <div class="md:col-span-2 mt-4">
+    <h3 class="text-[var(--text-primary)] text-xl font-semibold leading-tight tracking-[-0.015em] mb-3">Product Images</h3>
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                                         <?php if (!empty($product_images)): ?>
                                             <?php foreach ($product_images as $image): ?>
-                                                <div class="image-item">
-                                                    <img src="https://images.pexels.com/photos/1536619/pexels-photo-1536619.jpeg" alt="Product Image" class="thumbnail">
-                                                    <div class="image-actions">
-                                                        <?php if (!$image['is_primary']): ?>
-                                                            <a href="set-primary-image.php?id=<?php echo $image['id']; ?>&product_id=<?php echo $product_id; ?>" class="image-action" title="Set as Primary">
-                                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                                    <path d="M9 12l2 2 4-4"></path>
-                                                                    <circle cx="12" cy="12" r="10"></circle>
-                                                                </svg>
-                                                            </a>
-                                                        <?php endif; ?>
-                                                        <a href="delete-image.php?id=<?php echo $image['id']; ?>&product_id=<?php echo $product_id; ?>" class="image-action" title="Delete Image" data-confirm="Are you sure you want to delete this image?">
-                                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                                <polyline points="3,6 5,6 21,6"></polyline>
-                                                                <path d="M19,6v14a2,2,0,0,1-2,2H7a2,2,0,0,1-2-2V6m3,0V4a2,2,0,0,1,2-2h4a2,2,0,0,1,2,2V6"></path>
-                                                            </svg>
-                                                        </a>
+                <div class="relative group aspect-square">
+                <div class="w-full h-full bg-center bg-no-repeat bg-cover rounded-lg border border-[var(--border-color)]" style='background-image: url("../../images/products/<?php echo htmlspecialchars($image['file_name']); ?>");'></div>
+                <div class="absolute inset-0 bg-black bg-opacity-50 rounded-lg flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 ease-in-out">
+                <button type="button" class="text-white p-2 rounded-full hover:bg-white/20">
+                <span class="material-icons-outlined">edit</span>
+                </button>
+                <button type="button" class="text-white p-2 rounded-full hover:bg-white/20">
+                <span class="material-icons-outlined">delete</span>
+                </button>
                                                     </div>
                                                 </div>
                                             <?php endforeach; ?>
-                                        <?php else: ?>
-                                            <p class="no-images">No images available</p>
                                         <?php endif; ?>
+        
+        <div class="relative group aspect-square flex items-center justify-center border-2 border-dashed border-[var(--border-color)] rounded-lg hover:border-[var(--text-secondary)] transition-colors duration-200 ease-in-out cursor-pointer">
+        <div class="text-center">
+        <span class="material-icons-outlined text-[var(--text-secondary)] text-4xl mb-2 group-hover:text-[var(--text-primary)] transition-colors duration-200 ease-in-out">add</span>
+        <p class="text-sm text-[var(--text-secondary)] group-hover:text-[var(--text-primary)] transition-colors duration-200 ease-in-out">Add Image</p>
                                     </div>
-                                </div>
-                                
-                                <div class="form-group">
-                                    <label for="product_image">Add New Image</label>
-                                    <div class="image-preview-container">
-                                        <img id="image-preview" src="../../images/placeholder.jpg" alt="Product Image Preview" class="image-preview">
-                                    </div>
-                                    <input type="file" id="product_image" name="product_image" accept="image/*" onchange="previewImage(this, 'image-preview')">
-                                    <div class="field-hint">Recommended size: 800x800 pixels</div>
-                                </div>
-                                
-                                <div class="form-group">
-                                    <label for="additional_images">Additional Images</label>
-                                    <input type="file" id="additional_images" name="additional_images[]" accept="image/*" multiple>
-                                    <div class="field-hint">You can select multiple images</div>
-                                </div>
+        <input name="product_image" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" type="file" accept="image/*"/>
                             </div>
                         </div>
                     </div>
                     
-                    <div class="form-actions">
-                        <button type="submit" class="btn btn-primary">Update Product</button>
-                        <a href="index.php" class="btn btn-outline">Cancel</a>
+    <div class="md:col-span-2 flex justify-end gap-4 mt-8">
+    <a href="delete.php?id=<?php echo $product_id; ?>" onclick="return confirm('Are you sure you want to delete this product?')" class="btn btn-secondary min-w-[140px]">
+    <span class="truncate">Delete Product</span>
+    </a>
+    <button class="btn btn-primary min-w-[140px]" type="submit">
+    <span class="truncate">Update Product</span>
+    </button>
                     </div>
                 </form>
             </div>
         </main>
     </div>
+    </div>
+</div>
+    </div>
 
-    <script src="../../js/admin.js"></script>
     <script>
-    // Generate slug from product name
-    document.getElementById('name').addEventListener('blur', function() {
-        const slugField = document.getElementById('slug');
-        if (slugField.value === '') {
-            const name = this.value;
-            const slug = name.toLowerCase()
-                .replace(/[^\w\s-]/g, '')
-                .replace(/[\s_-]+/g, '-')
-                .replace(/^-+|-+$/g, '');
-            
-            slugField.value = slug;
-        }
+// Client-side validation and other functionality
+document.addEventListener('DOMContentLoaded', function() {
+    // Add any JavaScript functionality here
     });
     </script>
 </body>
