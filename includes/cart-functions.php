@@ -101,19 +101,17 @@ function getCartCount($session_id = null, $customer_id = null) {
 
 // Clear cart
 function clearCart($session_id = null, $customer_id = null) {
-    if (!$session_id) {
-        $session_id = getSessionId();
+    try {
+        if (!$session_id) {
+            $session_id = getSessionId();
+        }
+        
+        $sql = "DELETE FROM cart WHERE session_id = ? AND (customer_id = ? OR customer_id IS NULL)";
+        return executeQuery($sql, [$session_id, $customer_id]);
+    } catch (Exception $e) {
+        error_log("Error clearing cart: " . $e->getMessage());
+        return false;
     }
-    
-    $sql = "DELETE FROM cart WHERE session_id = ? AND (customer_id = ? OR customer_id IS NULL)";
-    return executeQuery($sql, [$session_id, $customer_id]);
-}
-
-// Merge guest cart to customer cart
-function mergeGuestCartToCustomer($session_id, $customer_id) {
-    // Update all guest cart items to customer
-    $sql = "UPDATE cart SET customer_id = ? WHERE session_id = ? AND customer_id IS NULL";
-    return executeQuery($sql, [$customer_id, $session_id]);
 }
 
 // Validate cart before checkout
