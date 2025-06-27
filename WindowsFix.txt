@@ -1,0 +1,56 @@
+Steps to Change DNS for Ethernet on Windows
+Open Network Settings
+
+Press Windows Key + R, type ncpa.cpl, and press Enter
+(this opens Network Connections directly)
+
+Find Your Ethernet Adapter
+
+Look for something named like Ethernet or Local Area Connection
+
+Right-click it → Click Properties
+
+Edit IPv4 Settings
+
+In the list, find and click on:
+
+scss
+CopyEdit
+Internet Protocol Version 4 (TCP/IPv4)
+Then click the Properties button
+
+Set DNS Servers
+
+Select: Use the following DNS server addresses
+
+Enter:
+
+Preferred DNS server: 8.8.8.8
+
+Alternate DNS server: 8.8.4.4
+(This is Google Public DNS — fast and reliable)
+
+Click OK, then OK again to close all windows
+
+Flush Old DNS Cache (Optional but Recommended)
+
+Open Command Prompt (search cmd, right-click → Run as administrator)
+
+Run this command:
+
+bash
+CopyEdit
+ipconfig /flushdns
+Restart Your Browser or Refresh
+
+Try reloading the site that wasn’t working
+
+🧪 To Test if It Worked:
+Try visiting this in your browser:
+
+arduino
+CopyEdit
+https://cdn.tailwindcss.com
+If it loads as plain JavaScript text, your DNS is now working correctly.
+
+Let me know if you'd prefer to switch to a different DNS (like Cloudflare's 1.1.1.1) or if the issue still persists after changing it.
